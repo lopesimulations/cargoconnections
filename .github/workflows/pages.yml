@@ -38,6 +38,10 @@ jobs:
         continue-on-error: true   # sem METAR o site ainda publica e usa o clima salvo na base
         run: node scripts/metar.mjs index.html _site/metar.json
 
+      - name: Baixar ciclones tropicais ativos (GDACS)
+        continue-on-error: true   # sem o arquivo o site só não mostra os ciclones
+        run: node scripts/ciclones.mjs _site/ciclones.json
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3

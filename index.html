@@ -161,6 +161,16 @@ td.code{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums
 .nosn{color:#7fe9ff}.nofoot{margin:6px 0 0}
 .wxsev.s1{--sc:#60a5fa}.wxsev.s2{--sc:#f59e0b}.wxsev.s3{--sc:#f87171}
 .wxdest{min-width:760px}
+.cypanel{position:absolute;left:12px;top:64px;z-index:3;width:min(360px,calc(100% - 24px));max-height:calc(100% - 128px);overflow:auto;background:rgba(3,9,14,.94);border:1px solid color-mix(in srgb,var(--c) 55%,transparent);border-left:3px solid var(--c);border-radius:4px;padding:10px 12px;color:var(--m-txt);font-size:12px;box-shadow:0 0 28px color-mix(in srgb,var(--c) 22%,transparent)}
+.cypanel[hidden]{display:none}
+.cyh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}.cyh b{font-family:Oxanium,var(--mono);font-size:14px;letter-spacing:.04em;color:#fff}
+.cyx{all:unset;cursor:pointer;font-size:18px;line-height:1;padding:0 4px;color:var(--m-dim)}.cyx:hover,.cyx:focus-visible{color:#fff}
+.cydl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:0}.cydl dt{color:var(--m-dim);font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;padding-top:1px}.cydl dd{margin:0;color:#fff}.cydl dd span,.cyst span{color:var(--m-dim)}
+.cyal{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;background:#4ade80}.cyal.red{background:#ff4d6d}.cyal.orange{background:#ff9f43}
+.cyst{margin:10px 0 4px;font-family:Oxanium,var(--mono);font-weight:600;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--c)}.cyst span{font-weight:400;text-transform:none;letter-spacing:0}
+.cytab{border-collapse:collapse;width:100%;min-width:0;font-family:var(--mono);font-size:11px}.cytab th{text-align:left;color:var(--m-dim);font-weight:500;position:static;background:none;font-size:10px;padding:2px 4px;border-bottom:1px solid var(--m-line)}.cytab td{padding:2px 4px;font-variant-numeric:tabular-nums;border-bottom:1px solid rgba(127,233,255,.06);white-space:nowrap}
+.cyap{list-style:none;margin:0;padding:0;display:grid;gap:2px}.cyap li{display:flex;justify-content:space-between;gap:8px}.cyap button{all:unset;cursor:pointer;color:#fff}.cyap button:hover b,.cyap button:focus-visible b{text-decoration:underline}.cyap i{font-style:normal;font-size:10px;color:var(--m-hub);border:1px solid var(--m-line);padding:0 3px;border-radius:2px}.cyap span{color:var(--m-dim);font-family:var(--mono);font-size:11px;white-space:nowrap}
+.cyok{margin:0;color:var(--m-dim)}.cylink{display:inline-block;margin-top:10px;color:var(--c);font-weight:600}
 .wxtab td.wxhubs{white-space:normal;font-family:var(--body)}.wxhub{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:0 5px;margin:0 4px 3px 0;border-radius:3px;border:1px solid var(--line);color:var(--in)}
 .wxhub.on{border-color:var(--accent);color:var(--accent)}.wxmore{display:inline!important;font-family:var(--mono);font-size:11px;color:var(--muted)}
 .wxleg{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11.5px;color:var(--muted)}.wxleg span{font-family:var(--mono);font-weight:600;color:var(--c)}
@@ -277,6 +287,7 @@ td.code{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums
       <div class="hud br"><span id="hudzoom">ZOOM 1.0×</span></div>
             <button id="mapreset" type="button">Recentrar</button>
       <div id="tip" hidden></div>
+      <div id="cypanel" class="cypanel" hidden aria-live="polite"></div>
     </div>
     <div id="wxbar" class="wxbar" hidden></div>
   </section>
@@ -479,7 +490,9 @@ function initMap(){
   let pend=null;
   cv.addEventListener("pointermove",e=>{if(MAP.mode==="globe"&&(G.drag&&G.moved>3||G.pinch))return;pend=e;if(!MAP.hoverReq){MAP.hoverReq=true;requestAnimationFrame(()=>{MAP.hoverReq=false;if(pend)hoverAt(pend);});}});
   cv.addEventListener("pointerleave",()=>{pend=null;if(G.hc){G.hc=null;}MAP.hover=null;MAP.hoverPt=null;untip();cv.classList.remove("pick");kick();});
-  cv.addEventListener("click",e=>{if(MAP.mode==="globe"&&G.moved>4){G.moved=0;return;}if(LV.hover)return;const a=pickPt(e);
+  cv.addEventListener("click",e=>{if(MAP.mode==="globe"&&G.moved>4){G.moved=0;return;}if(LV.hover)return;
+    {const t=MAP.mode==="globe"?cyPick(...local(e)):null;if(t){untip();cySelect(CY.sel===t.id?null:t.id);return;}
+     if(CY.sel){cySelect(null);return;}/* clique em qualquer outro ponto do mapa só fecha o painel do ciclone */}const a=pickPt(e);
     if(a&&SEL)return;/* com uma rota selecionada, outras escolhas ficam travadas */
     if(!a){hoverAt(e);if(MAP.hover){untip();if(SEL&&MAP.hover.id===SEL){selectRoute(null,{fly:false});return;}selectRoute(MAP.hover.id,{fly:true,scrollTo:"table"});}else if(SEL&&MAP.mode==="globe"&&gHoverRoute(...local(e),true)){return;/* clique em outra rota: travado */}else if(SEL){selectRoute(null,{fly:false});}else if($("hub").value||$("dst").value){$("hub").value="";$("dst").value="";LIMIT=250;render();}return;}
     untip();const d=a;SEL=null;
@@ -500,13 +513,15 @@ function hoverAt(e){
   if(ll&&!isNaN(ll[0])){const la=ll[1],lo=ll[0];$("hudpos").textContent=`${GL&&G.hc?G.hc.nm.toUpperCase()+" · ":""}LAT ${Math.abs(la).toFixed(2)}°${la>=0?"N":"S"} · LON ${Math.abs(lo).toFixed(2)}°${lo>=0?"E":"W"}`;}
   const a=pickPt(e);let rt=null;const lva=GL?lvPick(mx,my):null;if(lva!==LV.hover){LV.hover=lva;kick();}
   if(lva){MAP.hover=null;MAP.hoverPt=null;MAP.cv.classList.add("pick");tip(e,lvTip(lva));return;}
+  const cyh=GL?cyPick(mx,my):null;if(cyh!==CY.hover){CY.hover=cyh;kick();}
+  if(cyh){MAP.hover=null;MAP.hoverPt=null;MAP.cv.classList.add("pick");tip(e,cyHoverTip(cyh));return;}
   if(!a&&GL)rt=gHoverRoute(mx,my);
   else if(!a){const thr=6/(MAP.t.k*MAP.s);let bd=thr;
     for(const r of MAP.routes){if(MAP.sel&&r.id!==MAP.sel)continue;if(lx<r.bb[0]-thr||lx>r.bb[2]+thr||ly<r.bb[1]-thr||ly>r.bb[3]+thr)continue;
       for(const sg of r.segs)for(let i=1;i<sg.length;i++){const d=segDist(lx,ly,sg[i-1][0],sg[i-1][1],sg[i][0],sg[i][1]);if(d<bd){bd=d;rt=r;}}}}
   const ch=MAP.hover!==rt||MAP.hoverPt!==a;MAP.hover=rt;MAP.hoverPt=a;
   MAP.cv.classList.toggle("pick",!!a);
-  if(a)tip(e,`<b>${esc(a.c)}</b> <span class="d">${a.hub?"hub":"aeroporto"}</span><br>${esc(AP[a.c]||a.c)}<br>${(WX.on&&wxFor(a.c))?`<span class="wxt" style="--c:${WXCAT[wxFor(a.c).cat]}">${wxFor(a.c).cat}</span> ${esc(wxLine(wxFor(a.c)))}<br>`:""}${WX.on?noTipHtml(a.c):""}<span class="d">${a.n} rotas/voos no filtro · clique para ${($("hub").value===a.c||$("dst").value===a.c)?"desmarcar":a.hub?"filtrar o hub":"filtrar este destino"}</span>`);
+  if(a)tip(e,`<b>${esc(a.c)}</b> <span class="d">${a.hub?"hub":"aeroporto"}</span><br>${esc(AP[a.c]||a.c)}<br>${(WX.on&&wxFor(a.c))?`<span class="wxt" style="--c:${WXCAT[wxFor(a.c).cat]}">${wxFor(a.c).cat}</span> ${esc(wxLine(wxFor(a.c)))}<br>`:""}${WX.on?cyTip(a.c)+noTipHtml(a.c):""}<span class="d">${a.n} rotas/voos no filtro · clique para ${($("hub").value===a.c||$("dst").value===a.c)?"desmarcar":a.hub?"filtrar o hub":"filtrar este destino"}</span>`);
   else if(rt){const p=rt;tip(e,`<b>${esc(p.o)} → ${esc(p.d)}</b> <span class="d">${p.dir==="Malha"?"malha oficial":p.dir.toLowerCase()}</span><br>${esc(AP[p.o]||p.o)} → ${esc(AP[p.d]||p.d)}<br><span class="d">${fmt(mins(km(p.o,p.d)))} · ${Math.round(km(p.o,p.d)).toLocaleString("pt-BR")} km</span>${rtAcHtml(p)}${p.fl.length?`<br><span class="d">voos ${esc(p.fl.join(", ").slice(0,90))}</span>`:""}${rtLiveHtml(p)}`);}
   else untip();
   if(ch)kick();
@@ -900,9 +915,97 @@ function wxLoadGridCache(){try{const j=JSON.parse(localStorage.getItem("wxg")||"
 async function wxFetchFile(){try{const r=await fetch(`metar.json?t=${Math.floor(Date.now()/300000)}`,{cache:"no-store"});if(!r.ok)return false;const j=await r.json();if(!j||!j.metar)return false;
     const out={};for(const k in j.metar)out[k]=parseMetar(String(j.metar[k]));if(!Object.keys(out).length)return false;
     WX.metar=out;WX.src=j.fonte||"aviationweather.gov";WX.t=Date.parse(j.atualizado_em)||Date.now();WX.live=true;return true;}catch(e){return false;}}
-async function wxRefresh(){if(WX.on){const ok=await wxFetchFile()||await wxFetchMetar();if(!ok&&WX.snap&&!WX.live)wxFromSnap();}
+async function wxRefresh(){if(WX.on){await cyFetch();const ok=await wxFetchFile()||await wxFetchMetar();if(!ok&&WX.snap&&!WX.live)wxFromSnap();}
   if((WX.on||WX.cl)&&Date.now()-WX.gt>3*3600e3)await wxFetchGrid();wxBar();kick();}
 function wxStart(){wxLoadGridCache();wxRefresh();noStart();clearInterval(WX.timer);WX.timer=setInterval(wxRefresh,10*60000);}
+
+// ---------- Ciclones tropicais (GDACS): ciclones.json gerado pelo GitHub Actions (scripts/ciclones.mjs) ----------
+const CY={list:[],t:0,thr:new Map()};
+const CYR=500;// km: raio em que um aeroporto é considerado ameaçado pela tempestade ou pela trajetória prevista
+const cyCat=v=>v>=252?5:v>=209?4:v>=178?3:v>=154?2:v>=119?1:0;
+function cyKind(c){const {v,lat,lon}=c.atual;if(v<63)return"depressão tropical";if(v<119)return"tempestade tropical";
+  return lat>0&&lon>=100?"tufão":lat>0&&lon<-20?"furacão":"ciclone";}
+const cyCol=c=>{const v=c.atual.v,k=cyCat(v);return k>=3?"#ff4d6d":k>=1?"#ff9f43":v>=63?"#ffd166":"#7fe9ff";};
+const cyName=c=>{const k=cyKind(c),n=cyCat(c.atual.v);return`${k[0].toUpperCase()+k.slice(1)} ${c.nome}${n?" · cat. "+n:""}`;};
+function hav(a1,o1,a2,o2){const r=D2R,dl=(a2-a1)*r,dg=(o2-o1)*r,h=Math.sin(dl/2)**2+Math.cos(a1*r)*Math.cos(a2*r)*Math.sin(dg/2)**2;return 2*6371*Math.asin(Math.sqrt(h));}
+// para cada hub/destino, o ciclone que passa mais perto (posição atual ou trajetória prevista, interpolada)
+function cyThreat(){const m=new Map(),aps=new Set(HUBS.concat([...wxDestHubs().keys()]));
+  for(const c of CY.list){const P=[c.atual].concat(c.previsao||[]),S=[];
+    for(let i=0;i<P.length;i++){S.push(P[i]);if(i+1<P.length){let dl=P[i+1].lon-P[i].lon;if(dl>180)dl-=360;if(dl<-180)dl+=360;
+      for(let k=1;k<8;k++){const u=k/8;S.push({lat:P[i].lat+(P[i+1].lat-P[i].lat)*u,lon:P[i].lon+dl*u,t:P[i].t,v:P[i].v});}}}
+    for(const a of aps){const p=C[a];if(!p)continue;let best=null;
+      for(const q of S){const d=hav(p[0],p[1],q.lat,q.lon);if(!best||d<best.d)best={d,t:q.t,v:q.v};}
+      if(best&&best.d<=CYR&&(!m.has(a)||best.d<m.get(a).d))m.set(a,{c,...best});}}
+  CY.thr=m;}
+async function cyFetch(){try{const r=await fetch(`ciclones.json?t=${Math.floor(Date.now()/300000)}`,{cache:"no-store"});if(!r.ok)return;const j=await r.json();
+    CY.list=(j.ciclones||[]).filter(c=>c&&c.atual&&isFinite(c.atual.lat)&&isFinite(c.atual.lon));CY.t=Date.parse(j.atualizado_em)||Date.now();}catch(e){return;}
+  if(CY.sel&&!CY.list.some(c=>c.id===CY.sel))CY.sel=null;CY.hover=null;cyThreat();cyPanel();}
+const cyWhen=t=>{const d=new Date(t);return isNaN(d)||d<=Date.now()?"":` em ${d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})}`;};
+function cyScore(code){const x=CY.thr.get(code);if(!x)return null;
+  return{s:x.d<=150?70:x.d<=300?50:35,why:`${cyKind(x.c)} ${x.c.nome} a ${Math.round(x.d/10)*10} km${cyWhen(x.t)}`};}
+function cyTip(code){const x=CY.thr.get(code);if(!x)return"";
+  return`<span class="wxt" style="--c:${cyCol(x.c)}">${esc(cyName(x.c))}</span> ${Math.round(x.v)} km/h · ${Math.round(x.d/10)*10} km do aeroporto${esc(cyWhen(x.t))}<br>`;}
+function cyDraw(c,cx,cy,R,cl,sl,cp,sp,time,V){if(!WX.on||!CY.list.length)return;const ms=MS();
+  const P=(lon,lat)=>{const [x,y,z]=vec(lon,lat),x1=x*cl+y*sl;return[cx+R*(-x*sl+y*cl),cy-R*(-x1*sp+z*cp),x1*cp+z*sp];};
+  const line=(pts,dash,col,a,lw)=>{c.setLineDash(dash);c.strokeStyle=col;c.globalAlpha=a;c.lineWidth=lw;c.beginPath();let pen=false;
+    for(const p of pts){const [X,Y,d]=P(p[0],p[1]);if(d<=0){pen=false;continue;}if(pen)c.lineTo(X,Y);else{c.moveTo(X,Y);pen=true;}}c.stroke();c.setLineDash([]);};
+  c.save();
+  // aeroportos ameaçados: anel pulsante na cor da tempestade
+  for(const q of V){const x=CY.thr.get(q.a.c);if(!x)continue;const ph=RM?.5:(time*.9+q.a.off)%1,rr=(q.a.hub?q.a.r*ms+6:5)+ph*6;
+    c.globalAlpha=Math.min(1,q.d*2.5)*(1-ph)*.95;c.strokeStyle=cyCol(x.c);c.lineWidth=1.6;c.beginPath();c.arc(q.x,q.y,rr,0,7);c.stroke();}
+  CY.scr=[];
+  for(const t of CY.list){const col=cyCol(t),a=t.atual,on=CY.sel===t.id,dim=CY.sel&&!on?.35:1;
+    line(t.trilha||[],[1.5,3],col,.55*dim,on?2:1.4);
+    const F=[[a.lon,a.lat]].concat((t.previsao||[]).map(p=>[p.lon,p.lat]));line(F,[5,4],col,.9*dim,on?2.2:1.6);
+    c.font=`500 ${Math.round(9.5*Math.max(.85,ms))}px ${MFONT}`;c.textBaseline="middle";
+    for(const p of (t.previsao||[])){const [X,Y,d]=P(p.lon,p.lat);if(d<=0)continue;c.globalAlpha=.9*dim;c.fillStyle=col;c.beginPath();c.arc(X,Y,on?3:2.2,0,7);c.fill();
+      if(on){const dt=new Date(p.t),lb=`${String(dt.getUTCDate()).padStart(2,"0")}/${String(dt.getUTCMonth()+1).padStart(2,"0")} ${String(dt.getUTCHours()).padStart(2,"0")}h · ${p.v}`;c.globalAlpha=.95;c.fillStyle="rgba(3,9,14,.85)";c.fillRect(X+5,Y-6,c.measureText(lb).width+6,12);c.fillStyle="#fff";c.fillText(lb,X+8,Y);}}
+    const [X,Y,d]=P(a.lon,a.lat);if(d<=0)continue;const s=(7+cyCat(a.v)*.8)*Math.max(.9,ms)*(on||CY.hover===t?1.25:1),rot=RM?0:-time*2.2*(a.lat<0?-1:1);
+    CY.scr.push({t,X,Y,r:s*1.8});
+    const g=c.createRadialGradient(X,Y,0,X,Y,s*2.6);g.addColorStop(0,col+"66");g.addColorStop(1,col+"00");c.globalAlpha=dim;c.fillStyle=g;c.beginPath();c.arc(X,Y,s*2.6,0,7);c.fill();
+    if(on){c.globalAlpha=1;c.strokeStyle="#fff";c.lineWidth=1.4;c.setLineDash([3,3]);c.beginPath();c.arc(X,Y,s*1.9,0,7);c.stroke();c.setLineDash([]);}
+    c.globalAlpha=dim;
+    // símbolo de ciclone: olho + dois braços em espiral girando (sentido anti-horário no hemisfério norte)
+    c.translate(X,Y);c.rotate(rot);c.strokeStyle=col;c.lineWidth=2;c.lineCap="round";
+    for(const k of [0,Math.PI]){c.beginPath();c.arc(0,0,s*.55,k,k+Math.PI*.9);c.stroke();c.beginPath();c.moveTo(s*.55*Math.cos(k+Math.PI*.9),s*.55*Math.sin(k+Math.PI*.9));
+      c.quadraticCurveTo(s*1.1*Math.cos(k+Math.PI*1.05),s*1.1*Math.sin(k+Math.PI*1.05),s*1.35*Math.cos(k+Math.PI*1.35),s*1.35*Math.sin(k+Math.PI*1.35));c.stroke();}
+    c.fillStyle="#fff";c.beginPath();c.arc(0,0,s*.22,0,7);c.fill();c.setTransform(MAP.dpr,0,0,MAP.dpr,0,0);
+    // rótulo
+    const tx=`${cyName(t).toUpperCase()} · ${a.v} KM/H`;c.font=`600 ${Math.round(10.5*Math.max(.85,ms))}px ${MFONT}`;const tw=c.measureText(tx).width,lx=X+s*1.6+4,ly=Y-s*1.3;
+    c.globalAlpha=.92*dim;c.fillStyle="rgba(3,9,14,.9)";c.fillRect(lx-4,ly-8,tw+8,16);c.fillStyle=col;c.fillRect(lx-4,ly-8,2,16);c.globalAlpha=dim;c.fillStyle="#fff";c.textBaseline="middle";c.fillText(tx,lx+1,ly);}
+  c.restore();}
+function cyPick(mx,my){if(!WX.on||!CY.scr)return null;let best=null,bd=1e9;for(const q of CY.scr){const d=Math.hypot(q.X-mx,q.Y-my);if(d<=q.r+6&&d<bd){bd=d;best=q.t;}}return best;}
+const CYDIR=["norte","nordeste","leste","sudeste","sul","sudoeste","oeste","noroeste"];
+function cyMove(t){const T=(t.trilha||[]).filter(p=>p[2]),a=T[T.length-2],b=T[T.length-1];if(!a||!b)return null;
+  const h=(Date.parse(b[2])-Date.parse(a[2]))/3600e3;if(!(h>0))return null;const r=D2R,y=Math.sin((b[0]-a[0])*r)*Math.cos(b[1]*r),x=Math.cos(a[1]*r)*Math.sin(b[1]*r)-Math.sin(a[1]*r)*Math.cos(b[1]*r)*Math.cos((b[0]-a[0])*r);
+  const brg=(Math.atan2(y,x)/D2R+360)%360;return{dir:CYDIR[Math.round(brg/45)%8],kmh:Math.round(hav(a[1],a[0],b[1],b[0])/h)};}
+const cyTime=t=>{const d=new Date(t);return isNaN(d)?"—":`${d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})} ${String(d.getUTCHours()).padStart(2,"0")}:${String(d.getUTCMinutes()).padStart(2,"0")} UTC`;};
+const cyPos=(la,lo)=>`${Math.abs(la).toFixed(1)}°${la>=0?"N":"S"} ${Math.abs(lo).toFixed(1)}°${lo>=0?"E":"W"}`;
+const cyClass=v=>{const k=cyCat(v);return k?`cat. ${k}`:v>=63?"tempestade trop.":"depressão trop.";};
+const CYAL={Red:["vermelho","impacto humanitário alto"],Orange:["laranja","impacto moderado"],Green:["verde","impacto baixo"]};
+function cyHoverTip(t){const a=t.atual,m=cyMove(t);return`<b>${esc(cyName(t))}</b><br>${a.v} km/h · ${cyPos(a.lat,a.lon)}${m?`<br>rumo ${m.dir} a ${m.kmh} km/h`:""}<br><span class="d">clique para ver os detalhes</span>`;}
+function cyPanel(){const el=$("cypanel");if(!el)return;const t=CY.list.find(x=>x.id===CY.sel);if(!t||!WX.on){el.hidden=true;return;}
+  const a=t.atual,col=cyCol(t),m=cyMove(t),pk=Math.max(a.v,...(t.trilha||[]).map(p=>p[3]||0)),al=CYAL[t.alerta]||[t.alerta||"—",""],age=Math.round((Date.now()-Date.parse(a.t))/3600e3);
+  const thr=[...CY.thr].filter(([,x])=>x.c===t).sort((p,q)=>p[1].d-q[1].d);
+  const link=/^https:\/\/www\.gdacs\.org\//.test(t.link||"")?t.link:null;
+  el.style.setProperty("--c",col);
+  el.innerHTML=`<div class="cyh"><b>${esc(cyName(t))}</b><button type="button" class="cyx" aria-label="Fechar">×</button></div>
+  <dl class="cydl"><dt>Vento máximo</dt><dd>${a.v} km/h <span>(${Math.round(a.v/1.852)} kt) · ${esc(cyClass(a.v))}</span></dd>
+  <dt>Pico registrado</dt><dd>${pk} km/h <span>(${esc(cyClass(pk))})</span></dd>
+  <dt>Posição</dt><dd>${cyPos(a.lat,a.lon)}</dd>
+  <dt>Deslocamento</dt><dd>${m?`rumo ${m.dir}, ${m.kmh} km/h`:"—"}</dd>
+  <dt>Último boletim</dt><dd>${cyTime(a.t)} <span>(há ${age} h)</span></dd>
+  <dt>Alerta GDACS</dt><dd><i class="cyal ${esc(String(t.alerta||"").toLowerCase())}"></i>${esc(al[0])} <span>${esc(al[1])}</span></dd>
+  <dt>Fonte</dt><dd>${esc(t.fonte||"—")} via GDACS</dd></dl>
+  ${(t.previsao||[]).length?`<div class="cyst">Previsão</div><table class="cytab"><thead><tr><th>Quando (UTC)</th><th>Posição</th><th>km/h</th><th>Classe</th></tr></thead><tbody>${t.previsao.map(p=>{const d=new Date(p.t);return`<tr><td>${String(d.getUTCDate()).padStart(2,"0")}/${String(d.getUTCMonth()+1).padStart(2,"0")} ${String(d.getUTCHours()).padStart(2,"0")}h</td><td>${cyPos(p.lat,p.lon).replace(/°/g,"")}</td><td>${p.v}</td><td>${esc(cyClass(p.v))}</td></tr>`;}).join("")}</tbody></table>`:""}
+  <div class="cyst">Aeroportos ameaçados <span>(até ${CYR} km da tempestade ou da trajetória)</span></div>
+  ${thr.length?`<ul class="cyap">${thr.map(([k,x])=>`<li><button type="button" data-c="${k}"><b>${k}</b> ${esc(AP[k]||"")}${HUBS.includes(k)?' <i>hub</i>':""}</button><span>${Math.round(x.d/10)*10} km${esc(cyWhen(x.t))}</span></li>`).join("")}</ul>`:`<p class="cyok">Nenhum hub ou destino da base no caminho previsto.</p>`}
+  ${link?`<a class="cylink" href="${esc(link)}" target="_blank" rel="noopener">Boletim oficial no GDACS ↗</a>`:""}`;
+  el.hidden=false;
+  el.querySelector(".cyx").addEventListener("click",()=>cySelect(null));
+  el.querySelectorAll(".cyap button").forEach(b=>b.addEventListener("click",()=>{const k=b.dataset.c;if(C[k])gAnimTo(C[k][1],C[k][0],Math.max(G.k,2));G.lastInt=performance.now();}));}
+function cySelect(id){CY.sel=id;cyPanel();const t=CY.list.find(x=>x.id===id);
+  if(t&&MAP&&MAP.mode==="globe"){gAnimTo(t.atual.lon,t.atual.lat,Math.max(G.k,1.8));G.lastInt=performance.now();}kick();}
 const WXS={};function wxSprite(k,rgb){if(WXS[k])return WXS[k];const c=document.createElement("canvas");c.width=c.height=64;const g=c.getContext("2d"),gr=g.createRadialGradient(32,32,0,32,32,32);
   gr.addColorStop(0,`rgba(${rgb},1)`);gr.addColorStop(.55,`rgba(${rgb},.45)`);gr.addColorStop(1,`rgba(${rgb},0)`);g.fillStyle=gr;g.fillRect(0,0,64,64);return WXS[k]=c;}
 function wxDrawGrid(c,cx,cy,R,cl,sl,cp,sp){if(!WX.on||!WX.grid.length)return;const rad=R*Math.sin(7*D2R);
@@ -931,11 +1034,11 @@ function wxScore(w){let s=0;const why=[];const has=k=>w.wx.some(x=>x.d===k||x.p.
   if(w.vis!=null&&w.vis<800){s+=10;}
   if(w.t!=null&&w.t>=40){s+=8;why.push("calor "+w.t+" °C");}if(w.t!=null&&w.t<=-15){s+=8;why.push("frio "+w.t+" °C");}
   return{s,why};}
-function wxWorst(){const out=[];for(const h of [...new Set(HUBS)]){const w=wxFor(h);if(!w)continue;const sc=wxScore(w);if(sc.s>0)out.push({h,w,...sc});}
+function wxWorst(){const out=[];for(const h of [...new Set(HUBS)]){const w=wxFor(h);if(!w)continue;const sc=wxScore(w),cy=cyScore(h);if(cy){sc.s+=cy.s;sc.why.unshift(cy.why);}if(sc.s>0)out.push({h,w,...sc});}
   return out.sort((a,b)=>b.s-a.s).slice(0,20);}
 // destinos com pior tempo, cada um com os hubs de onde saem voos para ele; com um hub no filtro, só os destinos dele
 function wxWorstDest(){const dh=wxDestHubs(),fh=$("hub").value,out=[];let n=0;
-  for(const [d,hs] of dh){if(fh&&!hs.has(fh))continue;const w=wxFor(d);if(!w)continue;n++;const sc=wxScore(w);if(sc.s>0)out.push({h:d,w,hubs:[...hs].sort(),...sc});}
+  for(const [d,hs] of dh){if(fh&&!hs.has(fh))continue;const w=wxFor(d);if(!w)continue;n++;const sc=wxScore(w),cy=cyScore(d);if(cy){sc.s+=cy.s;sc.why.unshift(cy.why);}if(sc.s>0)out.push({h:d,w,hubs:[...hs].sort(),...sc});}
   return{L:out.sort((a,b)=>b.s-a.s||b.hubs.length-a.hubs.length).slice(0,25),n,tot:fh?[...dh.values()].filter(s=>s.has(fh)).length:dh.size,fh};}
 function wxDestHtml(){const {L,n,tot,fh}=wxWorstDest();
   if(!n)return`<p class="wxok">${WX.live?"Sem METAR dos destinos agora.":"Sem METAR dos destinos: o arquivo metar.json ainda não foi gerado e a base só guarda o tempo dos hubs."}</p>`;
@@ -950,11 +1053,11 @@ function wxWorstHtml(){const L=wxWorst();if(!L.length)return`<p class="wxok">Nen
   const cld=w=>w.cavok?"CAVOK":w.cl.length?w.cl.map(c=>c.c+(c.h!=null?String(c.h/100).padStart(3,"0"):"///")+(c.t||"")).join(" "):"—";
   return`<div class="wxtw"><table class="wxtab"><thead><tr><th>#</th><th>Hub</th><th>Gravidade</th><th>Cat.</th><th>Tempo presente</th><th>Vento</th><th>Visib.</th><th>Nuvens / teto</th><th>Temp/orv.</th><th>QNH</th></tr></thead><tbody>${
     L.map((x,i)=>{const w=x.w,lv=x.s>=50?3:x.s>=25?2:1;return`<tr data-h="${x.h}" tabindex="0" title="${esc(w.raw)}"><td>${i+1}</td><td><b>${x.h}</b><span>${esc(AP[x.h]||"")}</span></td><td><i class="wxsev s${lv}" style="--p:${Math.min(100,x.s)}%"></i>${esc(x.why.join(", ")||"—")}</td><td><span class="wxcat" style="--c:${WXCAT[w.cat]}">${w.cat}</span></td><td>${esc(wxText(w)||"—")}</td><td>${wind(w)}</td><td>${vis(w)}</td><td>${cld(w)}${w.ceil!=null?`<span>teto ${w.ceil.toLocaleString("pt-BR")} ft</span>`:""}</td><td>${w.t!=null?w.t+"°/"+(w.td??"—")+"°":"—"}</td><td>${w.qnh||"—"}</td></tr>`;}).join("")}</tbody></table></div>`;}
-function wxBar(){const el=$("wxbar");if(!el)return;if(!WX.on){el.hidden=true;return;}el.hidden=false;
+function wxBar(){cyPanel();const el=$("wxbar");if(!el)return;if(!WX.on){el.hidden=true;return;}el.hidden=false;
   const ORD=["LIFR","IFR","MVFR","VFR"];
   const hubs=[...new Set(HUBS)].filter(h=>wxFor(h));const al=hubs.map(h=>[h,wxFor(h)]).filter(([h,w])=>w.alert).sort((a,b)=>(b[1].ts-a[1].ts)||(ORD.indexOf(a[1].cat)-ORD.indexOf(b[1].cat)));
   const sel=$("hub").value||$("dst").value,sw=sel?wxFor(sel):null;const d=new Date(WX.t);
-  const head=`<div><span class="wxh">Meteorologia nos hubs</span><span class="wxs">${WX.live?"ao vivo":"da base"} · METAR ${esc(WX.src)} · ${hubs.length} hubs · ${d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}${WX.grid.length?" · chuva: Open-Meteo":""}</span></div>`;
+  const head=`<div><span class="wxh">Meteorologia nos hubs</span><span class="wxs">${WX.live?"ao vivo":"da base"} · METAR ${esc(WX.src)} · ${hubs.length} hubs · ${d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}${WX.grid.length?" · chuva: Open-Meteo":""}${CY.list.length?` · ciclones: GDACS (${CY.list.length} ativo${CY.list.length>1?"s":""})`:""}</span></div>`;
   const chip=([h,w])=>`<button type="button" class="wxc" data-h="${h}" style="--c:${WXCAT[w.cat]}"><b>${h}</b> ${esc(wxText(w)||(w.ceil!=null?"teto "+w.ceil+" ft":"vento/visibilidade"))}${(w.wg||0)>=25?" · rajadas "+w.wg+" kt":""} <span>${w.cat}</span></button>`;
   el.innerHTML=head+(sw?`<div class="wxsel"><b>${esc(AP[sel]||sel)} (${sel})</b> · ${esc(wxLine(sw))} <span class="wxcat" style="--c:${WXCAT[sw.cat]}">${sw.cat}</span><code>${esc(sw.raw)}</code></div>`:"")
     +(al.length?`<div class="wxal">${al.map(chip).join("")}</div>`:`<div class="wxok">Sem condições adversas nos hubs agora.</div>`)
@@ -1122,6 +1225,7 @@ function globeFrame(ts){
     if(MAP.hoverPt===a){c.strokeStyle=rgba(MC.hub,1);c.lineWidth=1.5;c.beginPath();c.arc(x,y,rr+3,0,7);c.stroke();}}
   c.globalAlpha=1;
   lvDraw(c,cx,cy,R,cl,sl,cp,sp);
+  cyDraw(c,cx,cy,R,cl,sl,cp,sp,time,V);
   if(MAP.hoverPt&&!MAP.hoverPt.hub){const q=V.find(v=>v.a===MAP.hoverPt);if(q){c.strokeStyle="#fff";c.lineWidth=1.2;c.beginPath();c.arc(q.x,q.y,3.5,0,7);c.stroke();}}
   c.setTransform(1,0,0,1,0,0);c.drawImage(G.lc,0,0);c.setTransform(dpr,0,0,dpr,0,0);
   lvSelLabels(c);
