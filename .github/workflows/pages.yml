@@ -1,10 +1,11 @@
-name: Publicar site com METAR
+name: Publicar site com METAR e verificação das rotas
 
 on:
   push:
     branches: [main]
   schedule:
     - cron: "7,37 * * * *"   # a cada 30 min (o GitHub pode atrasar alguns minutos)
+    - cron: "0 3 * * *"      # meia-noite de Brasília: verificação das rotas com ADS-B
   workflow_dispatch:
 
 permissions:
@@ -41,6 +42,17 @@ jobs:
       - name: Baixar ciclones tropicais ativos (GDACS)
         continue-on-error: true   # sem o arquivo o site só não mostra os ciclones
         run: node scripts/ciclones.mjs _site/ciclones.json
+
+      - name: Verificar as rotas com ADS-B (meia-noite de Brasília)
+        if: github.event.schedule == '0 3 * * *' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true   # se as fontes falharem, mantém a verificação da noite anterior
+        timeout-minutes: 45
+        run: node scripts/rotas.mjs index.html _site/verificacao.json https://lopesimulations.github.io/cargoconnections/verificacao.json
+
+      - name: Manter a última verificação das rotas
+        if: hashFiles('_site/verificacao.json') == ''
+        continue-on-error: true
+        run: curl -fsS -o _site/verificacao.json https://lopesimulations.github.io/cargoconnections/verificacao.json || rm -f _site/verificacao.json
 
       - uses: actions/configure-pages@v5
 
