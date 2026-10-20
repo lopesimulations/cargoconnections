@@ -1,0 +1,48 @@
+name: Publicar site com METAR
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "7,37 * * * *"   # a cada 30 min (o GitHub pode atrasar alguns minutos)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Montar o site
+        run: |
+          mkdir _site
+          cp -r index.html favicon.png fonts.css fonts lib _site/
+
+      - name: Baixar METAR de hubs e destinos
+        continue-on-error: true   # sem METAR o site ainda publica e usa o clima salvo na base
+        run: node scripts/metar.mjs index.html _site/metar.json
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

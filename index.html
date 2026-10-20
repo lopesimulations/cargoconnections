@@ -3,27 +3,31 @@
 <link rel="icon" href="favicon.png"><link rel="stylesheet" href="fonts.css">
 <style>
 /* Layout: departures-board header, filter bar, one dense scannable table */
-:root{
-  --bg:#f3f5f4; --surface:#ffffff; --fg:#17201d; --muted:#5b6964; --line:#d7dedb;
-  --accent:#c2620a; --accent-soft:#fbeadb;
-  --out:#1f6f5c; --out-soft:#dcefe9; --in:#2a5a9e; --in-soft:#dde7f6;
-  --off:#7a4fa3; --off-soft:#ece2f6;
-  --sea:#e4ecea; --land:#cdd7d3; --border:#f3f5f4;
+/* Deep-space blue palette, same in light and dark */
+:root,:root[data-theme="light"],:root[data-theme="dark"]{
+  --bg:#040a1c; --surface:#0a1530; --fg:#e4ecf8; --muted:#8fa3c4; --line:#1b2b4f;
+  --accent:#f0954a; --accent-soft:#2c1f17;
+  --out:#5cc3a6; --out-soft:#0e2a2e; --in:#8ab2ee; --in-soft:#14244a;
+  --off:#c39be6; --off-soft:#221c42;
+  --sea:#06102a; --land:#14233f; --border:#040a1c;
   --display:"Barlow Condensed","Arial Narrow",sans-serif;
   --body:"IBM Plex Sans",system-ui,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:dark;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#101614; --surface:#18201d; --fg:#e6ece9; --muted:#97a6a0; --line:#2b3632;
-  --accent:#f0954a; --accent-soft:#3a2716;
-  --out:#5cc3a6; --out-soft:#173029; --in:#8ab2ee; --in-soft:#1b2940;
-  --off:#c39be6; --off-soft:#2c2138; --sea:#0f1816; --land:#24302c; --border:#101614; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#101614; --surface:#18201d; --fg:#e6ece9; --muted:#97a6a0; --line:#2b3632;
-  --accent:#f0954a; --accent-soft:#3a2716;
-  --out:#5cc3a6; --out-soft:#173029; --in:#8ab2ee; --in-soft:#1b2940;
-  --off:#c39be6; --off-soft:#2c2138; --sea:#0f1816; --land:#24302c; --border:#101614; color-scheme:dark}
-body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px;line-height:1.5}
+body{color:var(--fg);font-family:var(--body);font-size:14px;line-height:1.5;
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(1px 1px at 23px 41px,rgba(255,255,255,.7),transparent 60%),
+    radial-gradient(1px 1px at 141px 97px,rgba(200,220,255,.55),transparent 60%),
+    radial-gradient(1.5px 1.5px at 211px 183px,rgba(255,255,255,.6),transparent 60%),
+    radial-gradient(1px 1px at 77px 229px,rgba(180,205,255,.45),transparent 60%),
+    radial-gradient(1px 1px at 263px 19px,rgba(255,255,255,.5),transparent 60%),
+    radial-gradient(1200px 700px at 15% -10%,rgba(56,92,190,.28),transparent 70%),
+    radial-gradient(900px 600px at 95% 30%,rgba(98,64,170,.18),transparent 70%),
+    linear-gradient(180deg,#071434 0%,#040a1c 55%,#02050f 100%);
+  background-size:280px 260px,280px 260px,280px 260px,280px 260px,280px 260px,auto,auto,auto;
+  background-attachment:fixed}
 .wrap{max-width:1180px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:20px}
 header{display:grid;gap:6px}
 .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
@@ -156,6 +160,9 @@ td.code{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums
 .noal.s-severe,.noal.s-extreme{border-color:#f87171;color:#f87171}
 .nosn{color:#7fe9ff}.nofoot{margin:6px 0 0}
 .wxsev.s1{--sc:#60a5fa}.wxsev.s2{--sc:#f59e0b}.wxsev.s3{--sc:#f87171}
+.wxdest{min-width:760px}
+.wxtab td.wxhubs{white-space:normal;font-family:var(--body)}.wxhub{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:0 5px;margin:0 4px 3px 0;border-radius:3px;border:1px solid var(--line);color:var(--in)}
+.wxhub.on{border-color:var(--accent);color:var(--accent)}.wxmore{display:inline!important;font-family:var(--mono);font-size:11px;color:var(--muted)}
 .wxleg{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11.5px;color:var(--muted)}.wxleg span{font-family:var(--mono);font-weight:600;color:var(--c)}
 #viewtog button+button{border-left:1px solid var(--m-line)}
 #viewtog{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:2;display:flex;border:1px solid var(--m-line);border-radius:4px;overflow:hidden;background:rgba(3,9,14,.8)}
@@ -865,11 +872,16 @@ function wxLine(w){const o=[];if(w.t!=null)o.push(`${w.t} °C`);
   if(w.cb)o.push("nuvens de trovoada (CB/TCU)");if(w.qnh)o.push(`QNH ${w.qnh}`);return o.join(" · ");}
 const WXCAT={VFR:"#4ade80",MVFR:"#60a5fa",IFR:"#f87171",LIFR:"#e879f9"};
 function wxFor(code){const i=ICAO[code];return i?WX.metar[i]:null;}
-async function wxFetchMetar(){const ids=[...new Set(HUBS.concat([$("hub").value,$("dst").value].filter(Boolean)).map(h=>ICAO[h]).filter(Boolean))];if(!ids.length)return false;
-  try{const out={};for(let i=0;i<ids.length;i+=40){const ac=new AbortController(),to=setTimeout(()=>ac.abort(),12000);
-      const r=await fetch(`https://aviationweather.gov/api/data/metar?format=raw&ids=${ids.slice(i,i+40).join(",")}`,{signal:ac.signal,cache:"no-store"});clearTimeout(to);if(!r.ok)throw 0;
-      for(const l of (await r.text()).split("\n")){const s=l.trim().replace(/^(METAR|SPECI)\s+/,"");if(/^[A-Z]{4}\s/.test(s))out[s.slice(0,4)]=parseMetar(s);}}
-    if(!Object.keys(out).length)return false;WX.metar=out;WX.src="aviationweather.gov";WX.t=Date.now();WX.live=true;return true;}catch(e){return false;}}
+// destino -> hubs que voam para ele (todas as rotas da base, sem filtros)
+function wxDestHubs(){if(WX.dhR===R&&WX.dh)return WX.dh;const m=new Map();
+  for(const r of R){const h=hubOf(r),d=partnerOf(r);if(!h||!d||h==="---"||d==="---")continue;if(!m.has(d))m.set(d,new Set());m.get(d).add(h);}
+  WX.dh=m;WX.dhR=R;return m;}
+async function wxFetchMetar(){const ids=[...new Set(HUBS.concat([...wxDestHubs().keys()],[$("hub").value,$("dst").value].filter(Boolean)).map(h=>ICAO[h]).filter(Boolean))];if(!ids.length)return false;
+  const out={},ch=[];for(let i=0;i<ids.length;i+=40)ch.push(ids.slice(i,i+40));
+  await Promise.allSettled(ch.map(async part=>{const ac=new AbortController(),to=setTimeout(()=>ac.abort(),15000);
+    try{const r=await fetch(`https://aviationweather.gov/api/data/metar?format=raw&ids=${part.join(",")}`,{signal:ac.signal,cache:"no-store"});if(!r.ok)return;
+      for(const l of (await r.text()).split("\n")){const s=l.trim().replace(/^(METAR|SPECI)\s+/,"");if(/^[A-Z]{4}\s/.test(s))out[s.slice(0,4)]=parseMetar(s);}}finally{clearTimeout(to);}}));
+  if(!Object.keys(out).length)return false;WX.metar=out;WX.src="aviationweather.gov";WX.t=Date.now();WX.live=true;return true;}
 function wxFromSnap(){const s=WX.snap;if(!s||!s.metar)return;const out={};for(const k in s.metar)out[k]=parseMetar(String(s.metar[k]));WX.metar=out;WX.src=s.fonte||"base";WX.t=Date.parse(s.atualizado_em)||Date.now();WX.live=false;}
 async function wxFetchGrid(){const la=[],lo=[];for(let y=-80;y<=80;y+=10)for(let x=-180;x<180;x+=10){la.push(y);lo.push(x);}
   const N=la.length,cc=new Float32Array(N),pr=new Float32Array(N),code=new Int16Array(N);
@@ -881,7 +893,11 @@ async function wxFetchGrid(){const la=[],lo=[];for(let y=-80;y<=80;y+=10)for(let
 function wxSetGrid(cc,pr,code,t){const la=[],lo=[];for(let y=-80;y<=80;y+=10)for(let x=-180;x<180;x+=10){la.push(y);lo.push(x);}
   WX.grid=la.map((y,i)=>({v:vec(lo[i],y),cc:cc[i],pr:pr[i],code:code[i]}));WX.gt=t;}
 function wxLoadGridCache(){try{const j=JSON.parse(localStorage.getItem("wxg")||"null");if(j&&Date.now()-j.t<3*3600e3&&j.cc&&j.cc.length===612){wxSetGrid(Float32Array.from(j.cc),Float32Array.from(j.pr),Int16Array.from(j.code),j.t);return true;}}catch(e){}return false;}
-async function wxRefresh(){if(WX.on){const ok=await wxFetchMetar();if(!ok&&WX.snap&&!WX.live)wxFromSnap();}
+// metar.json gerado pelo GitHub Actions (scripts/metar.mjs): o aviationweather.gov não libera CORS para o navegador
+async function wxFetchFile(){try{const r=await fetch(`metar.json?t=${Math.floor(Date.now()/300000)}`,{cache:"no-store"});if(!r.ok)return false;const j=await r.json();if(!j||!j.metar)return false;
+    const out={};for(const k in j.metar)out[k]=parseMetar(String(j.metar[k]));if(!Object.keys(out).length)return false;
+    WX.metar=out;WX.src=j.fonte||"aviationweather.gov";WX.t=Date.parse(j.atualizado_em)||Date.now();WX.live=true;return true;}catch(e){return false;}}
+async function wxRefresh(){if(WX.on){const ok=await wxFetchFile()||await wxFetchMetar();if(!ok&&WX.snap&&!WX.live)wxFromSnap();}
   if((WX.on||WX.cl)&&Date.now()-WX.gt>3*3600e3)await wxFetchGrid();wxBar();kick();}
 function wxStart(){wxLoadGridCache();wxRefresh();noStart();clearInterval(WX.timer);WX.timer=setInterval(wxRefresh,10*60000);}
 const WXS={};function wxSprite(k,rgb){if(WXS[k])return WXS[k];const c=document.createElement("canvas");c.width=c.height=64;const g=c.getContext("2d"),gr=g.createRadialGradient(32,32,0,32,32,32);
@@ -914,6 +930,17 @@ function wxScore(w){let s=0;const why=[];const has=k=>w.wx.some(x=>x.d===k||x.p.
   return{s,why};}
 function wxWorst(){const out=[];for(const h of [...new Set(HUBS)]){const w=wxFor(h);if(!w)continue;const sc=wxScore(w);if(sc.s>0)out.push({h,w,...sc});}
   return out.sort((a,b)=>b.s-a.s).slice(0,20);}
+// destinos com pior tempo, cada um com os hubs de onde saem voos para ele; com um hub no filtro, só os destinos dele
+function wxWorstDest(){const dh=wxDestHubs(),fh=$("hub").value,out=[];let n=0;
+  for(const [d,hs] of dh){if(fh&&!hs.has(fh))continue;const w=wxFor(d);if(!w)continue;n++;const sc=wxScore(w);if(sc.s>0)out.push({h:d,w,hubs:[...hs].sort(),...sc});}
+  return{L:out.sort((a,b)=>b.s-a.s||b.hubs.length-a.hubs.length).slice(0,25),n,tot:fh?[...dh.values()].filter(s=>s.has(fh)).length:dh.size,fh};}
+function wxDestHtml(){const {L,n,tot,fh}=wxWorstDest();
+  if(!n)return`<p class="wxok">${WX.live?"Sem METAR dos destinos agora.":"Sem METAR dos destinos: o arquivo metar.json ainda não foi gerado e a base só guarda o tempo dos hubs."}</p>`;
+  const cov=`<p class="wxs">${fh?`Destinos de ${esc(AP[fh]||fh)} (${fh})`:"Todos os destinos"} · METAR de ${n} de ${tot}${WX.live?"":" (só os que também são hubs; metar.json indisponível)"} · ${L.length?`${L.length} com tempo adverso`:"nenhum com tempo adverso"}</p>`;
+  if(!L.length)return cov;
+  const hubChips=x=>{const sh=x.hubs.slice(0,6);return sh.map(h=>`<b class="wxhub${h===fh?" on":""}" title="${esc(AP[h]||h)}">${h}</b>`).join("")+(x.hubs.length>6?`<span class="wxmore">+${x.hubs.length-6}</span>`:"");};
+  return cov+`<div class="wxtw"><table class="wxtab wxdest"><thead><tr><th>#</th><th>Destino</th><th>Gravidade</th><th>Cat.</th><th>Tempo presente</th><th>Hubs de origem</th></tr></thead><tbody>${
+    L.map((x,i)=>{const w=x.w,lv=x.s>=50?3:x.s>=25?2:1;return`<tr data-d="${x.h}" tabindex="0" title="${esc(w.raw)}"><td>${i+1}</td><td><b>${x.h}</b><span>${esc(AP[x.h]||"")}</span></td><td><i class="wxsev s${lv}" style="--p:${Math.min(100,x.s)}%"></i>${esc(x.why.join(", ")||"—")}</td><td><span class="wxcat" style="--c:${WXCAT[w.cat]}">${w.cat}</span></td><td>${esc(wxText(w)||"—")}<span>${esc(wxLine(w))}</span></td><td class="wxhubs">${hubChips(x)}<span>${x.hubs.length} hub${x.hubs.length>1?"s":""}</span></td></tr>`;}).join("")}</tbody></table></div>`;}
 function wxWorstHtml(){const L=wxWorst();if(!L.length)return`<p class="wxok">Nenhum hub com tempo adverso agora.</p>`;
   const vis=w=>w.vis==null?"—":w.vis>=9999?"≥10 km":w.vis>=1000?(w.vis/1000).toLocaleString("pt-BR",{maximumFractionDigits:1})+" km":w.vis+" m";
   const wind=w=>w.ws==null?"—":w.ws===0?"calmo":`${w.wd==="VRB"?"VRB":w.wd+"°"} ${w.ws}${w.wg?"G"+w.wg:""} kt`;
@@ -928,9 +955,12 @@ function wxBar(){const el=$("wxbar");if(!el)return;if(!WX.on){el.hidden=true;ret
   const chip=([h,w])=>`<button type="button" class="wxc" data-h="${h}" style="--c:${WXCAT[w.cat]}"><b>${h}</b> ${esc(wxText(w)||(w.ceil!=null?"teto "+w.ceil+" ft":"vento/visibilidade"))}${(w.wg||0)>=25?" · rajadas "+w.wg+" kt":""} <span>${w.cat}</span></button>`;
   el.innerHTML=head+(sw?`<div class="wxsel"><b>${esc(AP[sel]||sel)} (${sel})</b> · ${esc(wxLine(sw))} <span class="wxcat" style="--c:${WXCAT[sw.cat]}">${sw.cat}</span><code>${esc(sw.raw)}</code></div>`:"")
     +(al.length?`<div class="wxal">${al.map(chip).join("")}</div>`:`<div class="wxok">Sem condições adversas nos hubs agora.</div>`)
-    +`<details class="wxworst"${WX.wopen?" open":""}><summary>Piores climas agora · ranking dos hubs</summary>${wxWorstHtml()}</details>`+noHtml()
+    +`<details class="wxworst"${WX.wopen?" open":""}><summary>Piores climas agora · ranking dos hubs</summary>${wxWorstHtml()}</details>`
+    +`<details class="wxworst wxd"${WX.dopen?" open":""}><summary>Piores climas nos destinos · com os hubs de origem</summary>${wxDestHtml()}</details>`+noHtml()
     +`<div class="wxleg"><span style="--c:#4ade80">VFR</span><span style="--c:#60a5fa">MVFR</span><span style="--c:#f87171">IFR</span><span style="--c:#e879f9">LIFR</span> categorias de voo pelo teto e visibilidade</div>`;
-  const dt=el.querySelector(".wxworst:not(.noaa)");if(dt)dt.addEventListener("toggle",()=>{WX.wopen=dt.open;});
+  const dt=el.querySelector(".wxworst:not(.noaa):not(.wxd)");if(dt)dt.addEventListener("toggle",()=>{WX.wopen=dt.open;});
+  const dd=el.querySelector(".wxd");if(dd)dd.addEventListener("toggle",()=>{WX.dopen=dd.open;});
+  el.querySelectorAll(".wxdest tr[data-d]").forEach(tr=>{const go=()=>{const d=tr.dataset.d;$("hub").value="";$("q").value="";if(![...$("dst").options].some(x=>x.value===d))$("dst").innerHTML+=`<option value="${d}"></option>`;$("dst").value=d;$("dst")._sig="";LIMIT=250;render();};tr.addEventListener("click",go);tr.addEventListener("keydown",e=>{if(e.key==="Enter")go();});});
   const dn=el.querySelector(".noaa");if(dn)dn.addEventListener("toggle",()=>{NO.open=dn.open;});
   el.querySelectorAll(".wxtab tr[data-h]").forEach(tr=>{const go=()=>{const h=tr.dataset.h;$("reg").value="";if(typeof fillHubs==="function")fillHubs();$("hub").value=h;$("dst").value="";LIMIT=250;render();};tr.addEventListener("click",go);tr.addEventListener("keydown",e=>{if(e.key==="Enter")go();});});
   el.querySelectorAll(".wxc").forEach(b=>b.addEventListener("click",()=>{const h=b.dataset.h;$("reg").value="";if(typeof fillHubs==="function")fillHubs();$("hub").value=h;$("dst").value="";LIMIT=250;render();}));}
@@ -1211,6 +1241,7 @@ function applyData(docs){
     if((x.o!=="---"&&!C[x.o])||(x.d!=="---"&&!C[x.d]))return;
     rows.push([x.s,x.o,x.d,String(x.v||"—"),String(x.op||""),String(x.ac||""),String(x.f||""),String(x.visto||"")]);}));
   R=rows;LOADED=true;buildOptions();
+  if(WX.on)wxRefresh();// busca de novo o METAR, agora incluindo os destinos das rotas
   if(WX.on&&!NO.t&&!NO.busy)setTimeout(()=>noFetch(),0);
   if(SAVEDF){const s=SAVEDF;SAVEDF=null;$("reg").value=s.g||"";fillHubs();$("q").value=s.q||"";$("hub").value=s.h||"";$("dir").value=s.d||"";$("op").value=s.o||"";$("sort").value=s.s||"";$("ac").value=s.a||"";if(s.t){$("dst").innerHTML+=`<option value="${esc(s.t)}"></option>`;$("dst").value=s.t;$("dst")._sig="";}}
   render();
