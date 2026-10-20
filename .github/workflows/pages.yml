@@ -32,7 +32,7 @@ jobs:
       - name: Montar o site
         run: |
           mkdir _site
-          cp -r index.html favicon.png fonts.css fonts lib _site/
+          cp -r index.html i18n.js favicon.png fonts.css fonts lib _site/
 
       - name: Baixar METAR de hubs e destinos
         continue-on-error: true   # sem METAR o site ainda publica e usa o clima salvo na base
