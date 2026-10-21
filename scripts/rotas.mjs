@@ -2,10 +2,10 @@
 // Tira algumas fotos dos cargueiros no ar (adsb.lol / airplanes.live), descobre a rota de cada
 // indicativo (adsb.lol routeset, adsbdb ou hexdb, que às vezes traz também as escalas) e compara com a base do index.html.
 // Acumula o resultado com o verificacao.json já publicado, para a confirmação crescer noite a noite.
-// Uso: node scripts/rotas.mjs index.html _site/verificacao.json [url do verificacao.json publicado]
+// Uso: node scripts/rotas.mjs index.html verificacao.json [verificação anterior: arquivo local ou url ...]
 import fs from "node:fs";
 
-const [, , htmlPath, outPath, prevUrl] = process.argv;
+const [, , htmlPath, outPath, ...prevSrc] = process.argv;
 const html = fs.readFileSync(htmlPath, "utf8");
 
 // constantes do próprio site: mesmos modelos, companhias e códigos que o mapa ao vivo usa
@@ -140,7 +140,13 @@ function compare(fl, path, day, V, N) {
   }
 }
 
-const prev = await (async () => { if (!prevUrl) return null; try { return await getJ(`${prevUrl}?t=${Date.now()}`); } catch { return null; } })();
+// verificação anterior: o primeiro que existir (arquivo guardado no repositório ou o publicado no site)
+const prev = await (async () => {
+  for (const src of prevSrc) {
+    try { return /^https?:/.test(src) ? await getJ(`${src}?t=${Date.now()}`) : JSON.parse(fs.readFileSync(src, "utf8")); } catch { /* tenta o próximo */ }
+  }
+  return null;
+})();
 const V = prev?.vistas || {}, N = prev?.novas || {};
 const day = new Date().toISOString().slice(0, 10);
 let total = 0, comRota = 0;
