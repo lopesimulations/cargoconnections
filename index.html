@@ -616,7 +616,7 @@ function initMap(){
       else if(selAp()||G.cf){$("hub").value="";$("org").value="";$("dst").value="";FOC_AP="";G.cf=null;LIMIT=Infinity;render();}return;}
     untip();const d=a;SEL=null;
     if($("hub").value===d.c||FOC_AP===d.c){if($("hub").value===d.c)$("hub").value="";if(FOC_AP===d.c)FOC_AP="";LIMIT=Infinity;render();return;}
-    LIMIT=Infinity;if(HUBS.includes(d.c)&&R.some(r=>touches(r,d.c))){$("reg").value="";fillHubs();$("hub").value="";$("org").value="";$("dst").value="";FOC_AP="";$("hub").value=d.c;$("q").value="";}else{$("hub").value="";$("org").value="";$("dst").value="";FOC_AP="";$("q").value="";FOC_AP=d.c;}render();});
+    LIMIT=Infinity;if(HUBS.includes(d.c)&&R.some(r=>touches(r,d.c))){$("reg").value="";fillHubs();$("hub").value="";$("org").value="";$("dst").value="";FOC_AP="";$("hub").value=d.c;$("q").value="";}else{$("hub").value="";$("org").value="";$("dst").value="";FOC_AP="";$("q").value="";FOC_AP=d.c;}render();zoomToAp(d.c);});
   $("mapreset").addEventListener("click",()=>{if(MAP.mode==="globe"){gAnimTo(G.L,12,1,700);G.lastInt=performance.now();}else d3.select(cv).transition().duration(600).call(zoom.transform,d3.zoomIdentity);});
 }
 // conversões: lógico (0..1000) -> tela (px CSS)
@@ -1260,7 +1260,7 @@ function gAnimTo(lon,lat,k,dur=900){let L1=lon;while(L1-G.L>180)L1-=360;while(L1
   G.anim={L0:G.L,P0:G.P,k0:G.k,L1,P1:Math.max(-60,Math.min(60,lat)),k1:k,t0:performance.now(),dur};G.lastInt=performance.now();kick();}
 function globeFrame(ts){
   const {ctx:c,dpr,w,h}=MAP,time=RM?0:ts/1000;const dt=G.lt?Math.min(60,ts-G.lt):16;G.lt=ts;
-  if(G.anim){const a=G.anim,u=Math.min(1,(ts-a.t0)/a.dur),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
+  if(G.anim){const a=G.anim,u=Math.max(0,Math.min(1,(performance.now()-a.t0)/a.dur))/* mesmo relógio do início da animação */,e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
     G.L=a.L0+(a.L1-a.L0)*e;G.P=a.P0+(a.P1-a.P0)*e;G.k=a.k0+(a.k1-a.k0)*e;if(u>=1)G.anim=null;$("hudzoom").textContent=`ZOOM ${G.k.toFixed(1)}×`;}
   G.rot=false;
   if(!G.anim&&!RM&&!G.drag&&!G.pinch&&ts-G.lastInt>75000&&!MAP.sel&&!MAP.hover&&!MAP.hoverPt){G.L-=dt*.0035;G.rot=true;}/* rotação real: de oeste para leste (continentes andam para a direita) */
@@ -1446,6 +1446,11 @@ function selectRoute(key,{fly=true,scrollTo=null}={}){
   if(scrollTo==="table"){const el=document.querySelector(".selbar");if(el)el.scrollIntoView({behavior:"smooth",block:"start"});}
   if(scrollTo==="map"){$("map").scrollIntoView({behavior:"smooth",block:"center"});}
 }
+// clique num aeroporto: centraliza e aproxima (nunca afasta se já estiver mais perto)
+function zoomToAp(c){if(!MAP||!C[c])return;
+  if(MAP.mode==="globe"){gAnimTo(C[c][1],C[c][0],Math.max(G.k,3.5));return;}
+  const a=MAP.pts.find(p=>p.c===c);if(!a)return;const {w,h,s}=MAP,k=Math.max(MAP.t.k,4);
+  d3.select(MAP.cv).transition().duration(750).call(MAP.zoom.transform,d3.zoomIdentity.translate(w/2-k*s*a.x,h/2-k*s*a.y).scale(k));}
 function flyTo(key){
   const r=MAP.routes.find(x=>x.id===key);if(!r)return;
   if(MAP.mode==="globe"){if(!r.gv)gRoute(r);gAnimTo(r.mid[0],r.mid[1],G.k);return;}
