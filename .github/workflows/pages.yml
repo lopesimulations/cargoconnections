@@ -41,7 +41,8 @@ jobs:
 
       - name: Baixar ciclones tropicais ativos (GDACS)
         continue-on-error: true   # sem o arquivo o site só não mostra os ciclones
-        run: node scripts/ciclones.mjs _site/ciclones.json
+        timeout-minutes: 25
+        run: node scripts/ciclones.mjs _site/ciclones.json https://lopesimulations.github.io/cargoconnections/ciclones.json
 
       - name: Verificar as rotas com ADS-B (meia-noite de Brasília)
         if: github.event.schedule == '0 3 * * *' || github.event_name == 'workflow_dispatch'
