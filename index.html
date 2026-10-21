@@ -592,7 +592,7 @@ function initMap(){
     {const t=MAP.mode==="globe"?cyPick(...local(e)):null;if(t){untip();cySelect(CY.sel===t.id?null:t.id);return;}
      if(CY.sel){cySelect(null);return;}/* clique em qualquer outro ponto do mapa só fecha o painel do ciclone */}const a=pickPt(e);
     if(a&&SEL)return;/* com uma rota selecionada, outras escolhas ficam travadas */
-    if(!a){hoverAt(e);if(MAP.hover){untip();if(SEL&&MAP.hover.id===SEL){selectRoute(null,{fly:false});return;}selectRoute(MAP.hover.id,{fly:true,scrollTo:"table"});}else if(SEL&&MAP.mode==="globe"&&gHoverRoute(...local(e),true)){return;/* clique em outra rota: travado */}else if(SEL){selectRoute(null,{fly:false});}
+    if(!a){hoverAt(e);if(MAP.hover){untip();if(SEL&&MAP.hover.id===SEL){selectRoute(null,{fly:false});return;}selectRoute(MAP.hover.id,{fly:true});/* fica no mapa, sem rolar até a tabela */}else if(SEL&&MAP.mode==="globe"&&gHoverRoute(...local(e),true)){return;/* clique em outra rota: travado */}else if(SEL){selectRoute(null,{fly:false});}
       else if(MAP.mode==="globe"&&G.hc&&G.hc.f.id!==G.cf){G.cf=G.hc.f.id;$("hub").value="";$("dst").value="";$("q").value="";LIMIT=250;render();gAnimTo(G.hc.ct[0],G.hc.ct[1],G.k);}
       else if($("hub").value||$("dst").value||G.cf){$("hub").value="";$("dst").value="";G.cf=null;LIMIT=250;render();}return;}
     untip();const d=a;SEL=null;
