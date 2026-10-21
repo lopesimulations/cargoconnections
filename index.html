@@ -1048,6 +1048,8 @@ const CYR=500;// km: raio em que um aeroporto é considerado ameaçado pela temp
 const cyCat=v=>v>=252?5:v>=209?4:v>=178?3:v>=154?2:v>=119?1:0;
 function cyKind(c){const {v,lat,lon}=c.atual;if(v<63)return $t("depressão tropical");if(v<119)return $t("tempestade tropical");
   return $t(lat>0&&lon>=100?"tufão":lat>0&&lon<-20?"furacão":"ciclone");}
+// tamanho do ícone pela intensidade: depressão < tempestade tropical < categorias 1 a 5 (cat. 5 = 3× a depressão)
+const cySize=v=>[6.5,8.5,10.5,12.5,14.5,17,19.5][v<63?0:1+cyCat(v)];
 const cyCol=c=>{const v=c.atual.v,k=cyCat(v);return k>=3?"#ff4d6d":k>=1?"#ff9f43":v>=63?"#ffd166":"#7fe9ff";};
 const cyName=c=>{const k=cyKind(c),n=cyCat(c.atual.v);return`${k[0].toUpperCase()+k.slice(1)} ${c.nome}${n?" · "+$t("cat. {n}",{n}):""}`;};
 function hav(a1,o1,a2,o2){const r=D2R,dl=(a2-a1)*r,dg=(o2-o1)*r,h=Math.sin(dl/2)**2+Math.cos(a1*r)*Math.cos(a2*r)*Math.sin(dg/2)**2;return 2*6371*Math.asin(Math.sqrt(h));}
@@ -1092,7 +1094,7 @@ function cyDraw(c,cx,cy,R,cl,sl,cp,sp,time,V){if(!WX.on||!CY.list.length)return;
     for(const p of (t.previsao||[])){const [X,Y,d]=P(p.lon,p.lat);if(d<=0)continue;c.globalAlpha=.9*dim;c.fillStyle=col;c.beginPath();c.arc(X,Y,on?3:2.2,0,7);c.fill();
       if(on){const dt=new Date(p.t),lb=`${String(dt.getUTCDate()).padStart(2,"0")}/${String(dt.getUTCMonth()+1).padStart(2,"0")} ${String(dt.getUTCHours()).padStart(2,"0")}h · ${p.v}`;const w=c.measureText(lb).width+6,b=cyFree([[X+5,Y-6,X+5+w,Y+6],[X-5-w,Y-6,X-5,Y+6],[X-w/2,Y-19,X+w/2,Y-7],[X-w/2,Y+7,X+w/2,Y+19]],used);
         c.globalAlpha=.95;c.fillStyle="rgba(3,9,14,.85)";c.fillRect(b[0],b[1],w,12);c.fillStyle="#fff";c.fillText(lb,b[0]+3,b[1]+6);}}
-    const [X,Y,d]=P(a.lon,a.lat);if(d<=0)continue;const s=(7+cyCat(a.v)*.8)*Math.max(.9,ms)*(on||CY.hover===t?1.25:1),rot=RM?0:-time*2.2*(a.lat<0?-1:1);
+    const [X,Y,d]=P(a.lon,a.lat);if(d<=0)continue;const s=cySize(a.v)*Math.max(.9,ms)*(on||CY.hover===t?1.25:1),rot=RM?0:-time*2.2*(a.lat<0?-1:1);
     CY.scr.push({t,X,Y,r:s*1.8});
     const g=c.createRadialGradient(X,Y,0,X,Y,s*2.6);g.addColorStop(0,col+"66");g.addColorStop(1,col+"00");c.globalAlpha=dim;c.fillStyle=g;c.beginPath();c.arc(X,Y,s*2.6,0,7);c.fill();
     if(on){c.globalAlpha=1;c.strokeStyle="#fff";c.lineWidth=1.4;c.setLineDash([3,3]);c.beginPath();c.arc(X,Y,s*1.9,0,7);c.stroke();c.setLineDash([]);}
