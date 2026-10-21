@@ -45,8 +45,6 @@ const I18N_ROWS=[
 [`Chegadas · {c}`,`Arrivals · {c}`,`Llegadas · {c}`,`Arrivées · {c}`,`Ankünfte · {c}`],
 [`País`,`Country`,`País`,`Pays`,`Land`],
 [`Abre o SimBrief com origem, destino, aeronave e companhia preenchidos (é preciso estar logado)`,`Opens SimBrief with origin, destination, aircraft and airline filled in (you must be logged in)`,`Abre SimBrief con origen, destino, aeronave y aerolínea completados (debe haber iniciado sesión)`,`Ouvre SimBrief avec l'origine, la destination, l'avion et la compagnie déjà remplis (connexion requise)`,`Öffnet SimBrief mit vorausgefülltem Start, Ziel, Flugzeug und Airline (Anmeldung erforderlich)`],
-[`IDA`,`OUTBOUND`,`IDA`,`ALLER`,`HIN`],
-[`VOLTA`,`RETURN`,`VUELTA`,`RETOUR`,`RÜCK`],
 [`via {l}`,`via {l}`,`vía {l}`,`via {l}`,`über {l}`],
 [`escala provável: {l}`,`likely stop: {l}`,`escala probable: {l}`,`escale probable : {l}`,`wahrscheinlicher Stopp: {l}`],
 [`com escala, não identificada`,`with a stop, not identified`,`con escala, no identificada`,`avec escale, non identifiée`,`mit Zwischenstopp, nicht ermittelt`],
