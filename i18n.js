@@ -48,6 +48,7 @@ const I18N_ROWS=[
 [`Partida`,`Departure`,`Salida`,`Départ`,`Abflug`],
 [`Demais partidas (A–Z)`,`Other departures (A–Z)`,`Otras salidas (A–Z)`,`Autres départs (A–Z)`,`Weitere Abflugorte (A–Z)`],
 [`Aeroporto`,`Airport`,`Aeropuerto`,`Aéroport`,`Flughafen`],
+[`Rotas`,`Routes`,`Rutas`,`Routes`,`Routen`],
 [`via {l}`,`via {l}`,`vía {l}`,`via {l}`,`über {l}`],
 [`escala provável: {l}`,`likely stop: {l}`,`escala probable: {l}`,`escale probable : {l}`,`wahrscheinlicher Stopp: {l}`],
 [`com escala, não identificada`,`with a stop, not identified`,`con escala, no identificada`,`avec escale, non identifiée`,`mit Zwischenstopp, nicht ermittelt`],

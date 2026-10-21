@@ -190,9 +190,10 @@ td.code{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums
 #map.globe canvas{aspect-ratio:1000/680}
 @media (max-width:640px){#map.globe canvas{aspect-ratio:1/1}}
 #mapreset:hover{border-color:var(--m-hub);color:var(--m-hub)}
-#tip{font-family:Oxanium,var(--mono);letter-spacing:.02em;position:absolute;pointer-events:none;background:rgba(6,18,27,.92);color:var(--m-txt);border:1px solid var(--m-line);border-left:2px solid var(--m-hub);border-radius:4px;padding:7px 10px;font-size:11.5px;line-height:1.45;max-width:270px;z-index:3;backdrop-filter:blur(4px);font-family:var(--mono)}
-#tip b{color:#fff;font-weight:500}
-#tip .d{color:var(--m-dim)}
+#tip,#rtcard{font-family:Oxanium,var(--mono);letter-spacing:.02em;position:absolute;pointer-events:none;background:rgba(6,18,27,.92);color:var(--m-txt);border:1px solid var(--m-line);border-left:2px solid var(--m-hub);border-radius:4px;padding:7px 10px;font-size:11.5px;line-height:1.45;max-width:270px;z-index:3;backdrop-filter:blur(4px);font-family:var(--mono)}
+#tip b,#rtcard b{color:#fff;font-weight:500}
+#tip .d,#rtcard .d{color:var(--m-dim)}
+#rtcard{border-left-color:var(--c,var(--m-hub));box-shadow:0 0 18px rgba(0,0,0,.45)}#rtcard[hidden]{display:none}
 .mapfail{padding:40px 16px;text-align:center;color:var(--m-dim);position:relative;z-index:1}
 @media (max-width:640px){.hud.tr,.hud.br,.hud.bl{display:none}.hud.tl{font-size:10px}}
 #rows tr{cursor:pointer}
@@ -328,10 +329,11 @@ button.tocta{border:0;cursor:pointer}
       <div class="hud tl"><b data-t>Rede cargueira</b><span id="hudstats" class="k"></span></div>
       <div class="hud bl" id="hudpos">LAT --.-- · LON ---.--</div>
       <div class="hud bc" id="hudlive" hidden></div>
-      <div id="viewtog" role="group" aria-label="Camadas" data-ta><button type="button" id="wxbtn" aria-pressed="true" data-t>Clima</button></div>
+      <div id="viewtog" role="group" aria-label="Camadas" data-ta><button type="button" id="rtbtn" aria-pressed="true" data-t>Rotas</button><button type="button" id="wxbtn" aria-pressed="true" data-t>Clima</button></div>
       <div class="hud br"><span id="hudzoom">ZOOM 1.0×</span></div>
             <button id="mapreset" type="button" data-t>Recentrar</button>
       <div id="tip" hidden></div>
+      <div id="rtcard" hidden aria-live="polite"></div>
       <div id="cypanel" class="cypanel" hidden aria-live="polite"></div>
   </div>
   <header class="hero-top">
@@ -598,6 +600,9 @@ function initMap(){
   
   setMode("globe");
   /* transmissão ao vivo dos cargueiros desabilitada */
+  // interruptor das linhas de rota: desligado, o mapa fica só com aeroportos (a rota selecionada continua visível)
+  try{MAP.noR=localStorage.getItem("rotasoff")==="1";}catch(e){}$("rtbtn").setAttribute("aria-pressed",String(!MAP.noR));
+  $("rtbtn").addEventListener("click",()=>{MAP.noR=!MAP.noR;$("rtbtn").setAttribute("aria-pressed",String(!MAP.noR));try{localStorage.setItem("rotasoff",MAP.noR?"1":"0");}catch(e){}MAP.hover=null;untip();MAP.dirty=true;MAP.labDirty=true;kick();});
   $("wxbtn").addEventListener("click",()=>{WX.on=!WX.on;$("wxbtn").setAttribute("aria-pressed",String(WX.on));if(WX.on)wxRefresh();wxBar();kick();});
   wxStart();
   // pausa quando fora da tela ou aba oculta
@@ -638,18 +643,29 @@ function hoverAt(e){
   if(cyh){MAP.hover=null;MAP.hoverPt=null;MAP.cv.classList.add("pick");tip(e,cyHoverTip(cyh));return;}
   if(!a&&GL)rt=gHoverRoute(mx,my);
   else if(!a){const thr=6/(MAP.t.k*MAP.s);let bd=thr;
-    for(const r of MAP.routes){if(MAP.sel&&r.id!==MAP.sel)continue;if(lx<r.bb[0]-thr||lx>r.bb[2]+thr||ly<r.bb[1]-thr||ly>r.bb[3]+thr)continue;
+    for(const r of MAP.routes){if((MAP.sel&&r.id!==MAP.sel)||hideR(r))continue;if(lx<r.bb[0]-thr||lx>r.bb[2]+thr||ly<r.bb[1]-thr||ly>r.bb[3]+thr)continue;
       for(const sg of r.segs)for(let i=1;i<sg.length;i++){const d=segDist(lx,ly,sg[i-1][0],sg[i-1][1],sg[i][0],sg[i][1]);if(d<bd){bd=d;rt=r;}}}}
   const ch=MAP.hover!==rt||MAP.hoverPt!==a;MAP.hover=rt;MAP.hoverPt=a;
   MAP.cv.classList.toggle("pick",!!a);
   if(a)tip(e,`<b>${esc(a.c)}</b> <span class="d">${a.hub?"hub":$t("aeroporto")}</span><br>${esc(AP[a.c]||a.c)}<br>${(WX.on&&wxFor(a.c))?`<span class="wxt" style="--c:${WXCAT[wxFor(a.c).cat]}">${wxFor(a.c).cat}</span> ${esc(wxLine(wxFor(a.c)))}<br>`:""}${WX.on?cyTip(a.c)+noTipHtml(a.c):""}<span class="d">${$t("{n} rotas/voos no filtro",{n:a.n})} · ${$t(($("hub").value===a.c||$("dst").value===a.c)?"clique para desmarcar":a.hub?"clique para filtrar o hub":"clique para filtrar este destino")}</span>`);
-  else if(rt){const p=rt;tip(e,`<b>${esc(p.o)} → ${esc(p.d)}</b> <span class="d">${dirName(p.dir)}</span><br>${esc(AP[p.o]||p.o)} → ${esc(AP[p.d]||p.d)}<br><span class="d">${(m=>m==null?"—":fmt(m))(pathMins(p.o,p.d,p.st,p.sq))} · ${Math.round(pathKm(p.o,p.d,p.st)).toLocaleString(LOC)} km${escHtml(p.st,p.sq)?" · "+escHtml(p.st,p.sq):""}</span>${rtAcHtml(p)}${p.fl.length?`<br><span class="d">${$t("voos")} ${esc(p.fl.join(", ").slice(0,90))}</span>`:""}${rtLiveHtml(p)}`);}
+  else if(rt){tip(e,rtTipHtml(rt));}
   else untip();
   if(ch)kick();
 }
 function tip(e,html){const t=$("tip"),b=$("map").getBoundingClientRect();t.innerHTML=html;t.hidden=false;let x=e.clientX-b.left+14,y=e.clientY-b.top+14;if(x>b.width-280)x=e.clientX-b.left-280;if(y>b.height-110)y=e.clientY-b.top-110;t.style.left=Math.max(4,x)+"px";t.style.top=Math.max(4,y)+"px";}
 function untip(){$("tip").hidden=true;}
+function rtTipHtml(p){return `<b>${esc(p.o)} → ${esc(p.d)}</b> <span class="d">${dirName(p.dir)}</span><br>${esc(AP[p.o]||p.o)} → ${esc(AP[p.d]||p.d)}<br><span class="d">${(m=>m==null?"—":fmt(m))(pathMins(p.o,p.d,p.st,p.sq))} · ${Math.round(pathKm(p.o,p.d,p.st)).toLocaleString(LOC)} km${escHtml(p.st,p.sq)?" · "+escHtml(p.st,p.sq):""}</span>${rtAcHtml(p)}${p.fl.length?`<br><span class="d">${$t("voos")} ${esc(p.fl.join(", ").slice(0,90))}</span>`:""}${rtLiveHtml(p)}`;}
+// rota selecionada: o mesmo cartão do tooltip, fixo ao lado do meio da linha, acompanhando o globo
+function rtCard(){const el=$("rtcard");if(!el)return;const r=MAP&&MAP.sel?MAP.routes.find(x=>x.id===MAP.sel):null;
+  if(!r){if(!el.hidden)el.hidden=true;return;}
+  const k=r.id+"|"+LANG+"|"+(LV.on?LV.t:0);if(el._k!==k){el._k=k;el.innerHTML=rtTipHtml(r);el.style.setProperty("--c",rgba(MC[r.dir],1));}
+  let X,Y;if(MAP.mode==="globe"){const i=r.gN>>1,s=r.sc;if(!s||!s[i*3+2]){el.hidden=true;return;}X=s[i*3];Y=s[i*3+1];}
+  else{const q=r.len?at(r,r.len/2):null;if(!q){el.hidden=true;return;}[X,Y]=toS(q[0],q[1]);}
+  el.hidden=false;const W=el.offsetWidth,H=el.offsetHeight;let x=X+16,y=Y-H-10;
+  if(x+W>MAP.w-6)x=X-W-16;if(y<6)y=Y+14;x=Math.max(6,Math.min(MAP.w-W-6,x));y=Math.max(6,Math.min(MAP.h-H-6,y));
+  el.style.left=x+"px";el.style.top=y+"px";}
 const rgba=(c,a)=>`rgba(${c[0]},${c[1]},${c[2]},${a})`;
+const hideR=r=>MAP.noR&&!MAP.apOn&&r.id!==MAP.sel&&!r.inFan;/* interruptor "Rotas" desligado: some só o emaranhado geral; com aeroporto ou país escolhido as rotas dele voltam */
 function drawBase(){
   const {bctx:c,dpr,t,s,P,w,h}=MAP,k=t.k*s;
   c.setTransform(dpr,0,0,dpr,0,0);c.fillStyle=MC.bg;c.fillRect(0,0,w,h);
@@ -662,8 +678,8 @@ function drawBase(){
   // rotas: halo + núcleo, modo aditivo
   c.globalCompositeOperation="lighter";
   const dim=r=>MAP.sel&&r.id!==MAP.sel?.3:1;
-  for(const r of MAP.routes){c.strokeStyle=rgba(MC[r.dir],.04*dim(r));c.lineWidth=(r.sw*4)/k;c.stroke(r.p2d);}
-  for(const r of MAP.routes){c.strokeStyle=rgba(MC[r.dir],.24*dim(r));c.lineWidth=r.sw/k;c.stroke(r.p2d);}
+  for(const r of MAP.routes){if(hideR(r))continue;c.strokeStyle=rgba(MC[r.dir],.04*dim(r));c.lineWidth=(r.sw*4)/k;c.stroke(r.p2d);}
+  for(const r of MAP.routes){if(hideR(r))continue;c.strokeStyle=rgba(MC[r.dir],.24*dim(r));c.lineWidth=r.sw/k;c.stroke(r.p2d);}
   c.globalCompositeOperation="source-over";
   MAP.bt=MAP.t;MAP.dirty=false;
 }
@@ -714,7 +730,7 @@ function frame(ts){
   {const k=t.k*MAP.s,gap=12/k*Math.max(1,MAP.routes.length/420),off=(time*15/k)%gap,cs=Math.max(2,Math.round(2*dpr)),cr=cs>>1,gs=Math.round(5.5*dpr),gr=gs>>1;
    const vx0=-t.x/k,vy0=-t.y/k,vx1=vx0+w/k,vy1=vy0+h/k;
    const glow={},core={};
-   for(const r of MAP.routes){if(MAP.sel&&r.id!==MAP.sel)continue;if(r.bb[2]<vx0||r.bb[0]>vx1||r.bb[3]<vy0||r.bb[1]>vy1||!r.len)continue;
+   for(const r of MAP.routes){if((MAP.sel&&r.id!==MAP.sel)||hideR(r))continue;if(r.bb[2]<vx0||r.bb[0]>vx1||r.bb[3]<vy0||r.bb[1]>vy1||!r.len)continue;
      const gp=glow[r.dir]||(glow[r.dir]=new Path2D()),cp=core[r.dir]||(core[r.dir]=new Path2D());
      const F=r.flat,cu=r.cum;let i=1;
      for(let d=off;d<r.len;d+=gap){while(i<cu.length-1&&cu[i]<d)i++;const A=F[i-1],B=F[i];if(B.brkStart)continue;
@@ -729,7 +745,7 @@ function frame(ts){
   // partículas ao longo das rotas (sentido do voo)
   c.globalCompositeOperation="lighter";
   const manyR=MAP.routes.length>700;
-  for(const r of MAP.routes){if(!r.len||(MAP.sel&&r.id!==MAP.sel))continue;if(manyR&&!MAP.sel&&(r.off*100|0)%2)continue;const n=r.len>300&&!manyR?2:1;
+  for(const r of MAP.routes){if(!r.len||(MAP.sel&&r.id!==MAP.sel)||hideR(r))continue;if(manyR&&!MAP.sel&&(r.off*100|0)%2)continue;const n=r.len>300&&!manyR?2:1;
     for(let j=0;j<n;j++){const ph=((time*55/r.len)+r.off+j/n)%1;const q=at(r,ph*r.len);if(!q)continue;const [x,y]=toS(q[0],q[1]);
       if(x<-5||y<-5||x>w+5||y>h+5)continue;const col=MC[r.dir],hl=MAP.hover===r||MAP.sel===r.id;
       const q2=at(r,Math.max(0,ph*r.len-9));if(q2){const [x2,y2]=toS(q2[0],q2[1]);if(Math.hypot(x2-x,y2-y)<40){const gr=c.createLinearGradient(x2,y2,x,y);gr.addColorStop(0,rgba(col,0));gr.addColorStop(1,rgba(col,.6));c.strokeStyle=gr;c.lineWidth=2.4;c.beginPath();c.moveTo(x2,y2);c.lineTo(x,y);c.stroke();}}
@@ -748,6 +764,7 @@ function frame(ts){
   c.setTransform(1,0,0,1,0,0);c.drawImage(MAP.lab,0,0);c.setTransform(dpr,0,0,dpr,0,0);
   if(MAP.hoverPt&&!MAP.hoverPt.hub){const [x,y]=toS(MAP.hoverPt.x,MAP.hoverPt.y);c.strokeStyle="#fff";c.lineWidth=1.2;c.beginPath();c.arc(x,y,3.5,0,7);c.stroke();}
   c.globalCompositeOperation="source-over";
+  rtCard();
   // medidor de FPS
   if(!RM)kick();
 }
@@ -1301,7 +1318,7 @@ function globeFrame(ts){
   const lo=mov&&dpr>1.05,ld=lo?1:dpr,LW2=Math.max(1,Math.round(w)),LH2=Math.max(1,Math.round(h));
   if(lo&&(!G.bcLo||G.bcLo.width!==LW2||G.bcLo.height!==LH2)){G.bcLo=document.createElement("canvas");G.bcLo.width=LW2;G.bcLo.height=LH2;G.lcLo=document.createElement("canvas");G.lcLo.width=LW2;G.lcLo.height=LH2;}
   const BC=lo?G.bcLo:G.bc,LC=lo?G.lcLo:G.lc;
-  const key=[G.L.toFixed(3),G.P.toFixed(3),G.k.toFixed(4),W,H,mov?1:0,G.hc?G.hc.nm:"",G.cf||"",MAP.sel||"",MAP.hover?MAP.hover.id:"",MAP.hoverPt?MAP.hoverPt.c:"",$("hub").value,$("dst").value,$("org").value,FOC_AP,G.fanP||0,TX.ok?TX.mul:0,WX.on?1:0,WX.gt,WX.t,G.rv||0].join("|");
+  const key=[G.L.toFixed(3),G.P.toFixed(3),G.k.toFixed(4),W,H,mov?1:0,G.hc?G.hc.nm:"",G.cf||"",MAP.sel||"",MAP.hover?MAP.hover.id:"",MAP.hoverPt?MAP.hoverPt.c:"",$("hub").value,$("dst").value,$("org").value,FOC_AP,G.fanP||0,MAP.noR?1:0,MAP.apOn?1:0,TX.ok?TX.mul:0,WX.on?1:0,WX.gt,WX.t,G.rv||0].join("|");
   if(key!==G.bkey||G.rts!==MAP.routes){G.bkey=key;G.rts=MAP.routes;
   {const c=BC.getContext("2d");
   c.setTransform(ld,0,0,ld,0,0);c.globalCompositeOperation="source-over";
@@ -1350,7 +1367,7 @@ function globeFrame(ts){
   c.globalCompositeOperation="source-over";c.lineCap=mov?"butt":"round";
   // rotas agrupadas por estilo e desenhadas direto no contexto: Path2D novos a cada quadro acumulavam centenas de MB fora do JS
   {const B=G.grpB||(G.grpB={});for(const k in B)B[k].length=0;
-   for(const r of RT){if(!r.gvis)continue;const key=MAP.sel&&r.id!==MAP.sel&&!r.inFan?r.dbk:r.bk;(B[key]||(B[key]=[])).push(r);}
+   for(const r of RT){if(!r.gvis||hideR(r))continue;const key=MAP.sel&&r.id!==MAP.sel&&!r.inFan?r.dbk:r.bk;(B[key]||(B[key]=[])).push(r);}
    const LA=[.34,.24,.17],LW=[1.15,1,.9];
    for(const key in B){const L=B[key];if(!L.length)continue;const dim=key[0]==="d",[dir,lv]=(dim?key.slice(1):key).split("|"),col=MC[dir];
      c.beginPath();for(const r of L)poly(c,r,mov?4:1);c.strokeStyle=rgba(col,dim?.07:LA[+lv]);c.lineWidth=LW[+lv];c.stroke();}}
@@ -1386,27 +1403,7 @@ function globeFrame(ts){
      if(a.hub){c.fillStyle=rgba(MC.hub,1);c.fillRect(tx-3,q.y-fh/2,1.5,fh);}
      c.fillStyle=a.hub?"#ffffff":"#e6eef3";c.fillText(a.c,tx+(a.hub?1:0),q.y+.5);}
    if("letterSpacing" in c)c.letterSpacing="0px";
-   // placas das rotas (código→código · tempo) só com uma rota selecionada: ela e as que dividem algum trecho com ela
-   // (ida e volta, ou várias rotas pela mesma escala, como GRU–ADD), cada uma com a sua placa em pontos diferentes da linha
-   G.rbox=[];
-   if(!mov&&MAP.sel){const RT=MAP.routes;
-     for(const r of RT)if(!r.legs)r.legs=routeLegs(r);
-     const sr=RT.find(r=>r.id===MAP.sel),sl=new Set(sr?sr.legs:[]),cap=40;
-     const vis=sr?RT.filter(r=>r.gvis&&(r===sr||r.legs.some(k=>sl.has(k)))):[];
-     vis.sort((a,b)=>((b===sr)-(a===sr))||(b.n-a.n));
-     c.font=`600 ${Math.round(9.5*Math.max(.85,ms))}px ${MFONT}`;c.textAlign="center";const FR=[.5,.36,.64,.26,.74,.18,.82,.43,.57],th=14;let nP=0;
-     // não cobre os textos e botões que ficam por cima do globo
-     const cr=MAP.cv.getBoundingClientRect(),ob=[];
-     for(const el of document.querySelectorAll(".hero-top,.hero-side,#stats,.hero-bar,#mapreset,#viewtog,#cypanel:not([hidden]),.hero .hud.bl,.hero .hud.br")){const q=el.getBoundingClientRect();if(q.width&&q.height)ob.push([q.left-cr.left-4,q.top-cr.top-4,q.right-cr.left+4,q.bottom-cr.top+4]);}
-     const busy=b=>placed.some(p=>b[0]<p[2]&&b[2]>p[0]&&b[1]<p[3]&&b[3]>p[1])||ob.some(p=>b[0]<p[2]&&b[2]>p[0]&&b[1]<p[3]&&b[3]>p[1]),done=new Set();
-     for(const r of vis){if(nP>=cap)break;const k=r.o+">"+r.d;if(done.has(k))continue;/* mesma ligação vista em duas fontes: uma placa só */
-       const S=r.sc,N=r.gN,m=pathMins(r.o,r.d,r.st,r.sq),tx=`${r.o}→${r.d}${m!=null?" · "+fmt(m):""}`,tw=c.measureText(tx).width+10;
-       for(const f of FR){const i=Math.round(f*N);if(!S[i*3+2])continue;const X=S[i*3],Y=S[i*3+1],b=[X-tw/2,Y-th/2,X+tw/2,Y+th/2];
-         if(b[0]<4||b[1]<4||b[2]>w-4||b[3]>h-4||busy(b))continue;
-         placed.push(b);G.rbox.push([b,r.id]);done.add(k);nP++;
-         c.globalAlpha=Math.min(1,.5+S[i*3+2]*.5);c.fillStyle="rgba(3,9,14,.9)";c.fillRect(b[0],b[1],tw,th);c.fillStyle=rgba(MC[r.dir],1);c.fillRect(b[0],b[1],2,th);
-         c.fillStyle="#fff";c.fillText(tx,X+1,Y+.5);break;}}
-     c.textAlign="start";}
+   G.rbox=[];/* a rota selecionada mostra o cartão completo (rtCard), não plaquinhas */
    G.lbox=placed;c.globalAlpha=1;}
   }}
   const RT=MAP.routes,V=G.vis,ms=MS();
@@ -1414,7 +1411,7 @@ function globeFrame(ts){
   c.globalCompositeOperation="lighter";c.lineCap="round";
   // fluxo de pontos ao longo dos arcos
   {const ND=[1,.55,.3],dens=Math.max(1,RT.length/420),cs=Math.max(2,Math.round(2*dpr))/dpr,gs=Math.round(5*dpr)/dpr,D=G.grpD||(G.grpD={});for(const k in D)D[k].length=0;
-   for(const r of RT){if(!r.gvis||(MAP.sel&&r.id!==MAP.sel&&!r.inFan))continue;const kk=MAP.sel?r.bk0:r.bk;(D[kk]||(D[kk]=[])).push(r);}
+   for(const r of RT){if(!r.gvis||(MAP.sel&&r.id!==MAP.sel&&!r.inFan)||hideR(r))continue;const kk=MAP.sel?r.bk0:r.bk;(D[kk]||(D[kk]=[])).push(r);}
    const dots=(L,lv,sz)=>{c.beginPath();for(const r of L){const s=r.sc,N=r.gN,nd=Math.max(lv?1:2,Math.round(r.gang*16*Math.sqrt(G.k)/dens*ND[lv])),sh=time*.22/r.gang;
      for(let j=0;j<nd;j++){const f=((j/nd+sh)%1)*N,i=f|0,u=f-i;if(i>=N||!s[i*3+2]||!s[i*3+5])continue;
        c.rect(s[i*3]+(s[i*3+3]-s[i*3])*u-sz/2,s[i*3+1]+(s[i*3+4]-s[i*3+1])*u-sz/2,sz,sz);}}};
@@ -1423,7 +1420,7 @@ function globeFrame(ts){
      dots(L,+lv,cs);c.fillStyle=rgba([Math.min(255,col[0]+70),Math.min(255,col[1]+45),Math.min(255,col[2]+45)],[.58,.42,.26][+lv]);c.fill();}}
   // cometas
   {const many=RT.length>700;
-   for(const r of RT){if(!r.gvis||(MAP.sel&&r.id!==MAP.sel&&!r.inFan))continue;if(!MAP.sel&&MAP.hover!==r&&(r.lv===2||(r.lv===1&&(r.off*100|0)%2)||(many&&(r.off*100|0)%3===0)))continue;
+   for(const r of RT){if(!r.gvis||(MAP.sel&&r.id!==MAP.sel&&!r.inFan)||hideR(r))continue;if(!MAP.sel&&MAP.hover!==r&&(r.lv===2||(r.lv===1&&(r.off*100|0)%2)||(many&&(r.off*100|0)%3===0)))continue;
      const s=r.sc,N=r.gN,ph=(time*.1/r.gang+r.off)%1,f=ph*N,i=f|0,u=f-i;if(i>=N||!s[i*3+2]||!s[i*3+5])continue;
      const X=s[i*3]+(s[i*3+3]-s[i*3])*u,Y=s[i*3+1]+(s[i*3+4]-s[i*3+1])*u,col=MC[r.dir],hl=MAP.hover===r||MAP.sel===r.id;
      const f2=Math.max(0,f-2.2),i2=f2|0,u2=f2-i2;if(s[i2*3+2]&&s[Math.min(N,i2+1)*3+2]){const X2=s[i2*3]+(s[Math.min(N,i2+1)*3]-s[i2*3])*u2,Y2=s[i2*3+1]+(s[Math.min(N,i2+1)*3+1]-s[i2*3+1])*u2;
@@ -1443,12 +1440,12 @@ function globeFrame(ts){
   cyDraw(c,cx,cy,R,cl,sl,cp,sp,time,V);
   if(MAP.hoverPt&&!MAP.hoverPt.hub){const q=V.find(v=>v.a===MAP.hoverPt);if(q){c.strokeStyle="#fff";c.lineWidth=1.2;c.beginPath();c.arc(q.x,q.y,3.5,0,7);c.stroke();}}
   c.setTransform(1,0,0,1,0,0);c.drawImage(LC,0,0,W,H);c.setTransform(dpr,0,0,dpr,0,0);
-  lvSelLabels(c);
+  lvSelLabels(c);rtCard();
   if(!RM||G.anim||G.drag||G.pinch)kick();
 }
 function gPick(e){const [mx,my]=local(e);let best=null,bd=7;for(const q of G.vis){const d=Math.hypot(q.x-mx,q.y-my);if(d<bd){bd=d;best=q.a;}}return best;}
 function gHoverRoute(mx,my,all){let rt=null,bd=6;
-  for(const r of MAP.routes){if(!r.gvis||(!all&&MAP.sel&&r.id!==MAP.sel&&!r.inFan))continue;const b=r.gbb;if(mx<b[0]-6||mx>b[2]+6||my<b[1]-6||my>b[3]+6)continue;const s=r.sc;
+  for(const r of MAP.routes){if(!r.gvis||(!all&&MAP.sel&&r.id!==MAP.sel&&!r.inFan)||hideR(r))continue;const b=r.gbb;if(mx<b[0]-6||mx>b[2]+6||my<b[1]-6||my>b[3]+6)continue;const s=r.sc;
     for(let i=1;i<=r.gN;i++){if(!s[i*3+2]||!s[i*3-1])continue;const d=segDist(mx,my,s[i*3-3],s[i*3-2],s[i*3],s[i*3+1]);if(d<bd){bd=d;rt=r;}}}
   return rt;}
 function setMode(m){if(!MAP)return;MAP.mode=m;MAP.host.classList.toggle("globe",m==="globe");
@@ -1503,7 +1500,7 @@ function zoomToAp(c){if(!MAP||!C[c])return;
   d3.select(MAP.cv).transition().duration(750).call(MAP.zoom.transform,d3.zoomIdentity.translate(w/2-k*s*a.x,h/2-k*s*a.y).scale(k));}
 function flyTo(key){
   const r=MAP.routes.find(x=>x.id===key);if(!r)return;
-  if(MAP.mode==="globe"){if(!r.gv)gRoute(r);gAnimTo(r.mid[0],r.mid[1],Math.max(1,Math.min(6,2.2/(r.gang+.15))));return;}/* zoom até a rota caber */
+  if(MAP.mode==="globe"){if(!r.gv)gRoute(r);gAnimTo(r.mid[0],r.mid[1],Math.max(1,Math.min(6,.85/Math.sin(Math.min(Math.PI/2,r.gang/2+.08)))));return;}/* zoom proporcional à extensão da rota: ela inteira na tela */
   const {w,h,s}=MAP,bw=Math.max(20,r.bb[2]-r.bb[0]),bh=Math.max(20,r.bb[3]-r.bb[1]);
   const k=Math.max(1,Math.min(8,.72*Math.min(w/(bw*s),h/(bh*s)))),cx=(r.bb[0]+r.bb[2])/2,cy=(r.bb[1]+r.bb[3])/2;
   d3.select(MAP.cv).transition().duration(750).call(MAP.zoom.transform,d3.zoomIdentity.translate(w/2-k*s*cx,h/2-k*s*cy).scale(k));
@@ -1543,7 +1540,7 @@ function render(){
   if(ov)list=byO(list,ov);if(dv)list=byD(list,dv);
   const pv=fillOps(list);if(pv)list=list.filter(r=>r[4]===pv);
   // sem hub, o aeroporto em foco (ou a partida) vira o ponto de vista: o que sai dele é saída; só destino: tudo é chegada
-  const foc=!h?(FOC_AP||ov):"",dfoc=!h&&!foc?dv:"";if(MAP)MAP.foc=foc||dfoc;
+  const foc=!h?(FOC_AP||ov):"",dfoc=!h&&!foc?dv:"";if(MAP){MAP.foc=foc||dfoc;MAP.apOn=!!(h||FOC_AP||ov||dv||cf);}
   if(dfoc)list=list.map(r=>{if(r[0]==="Malha")return r;const n=r.slice();n[0]="Chegada";return n;});
   // país em foco (sem hub nem destino): o que sai do país é saída, o que chega é chegada; malha começa no país
   const cfv=cf&&!h&&!foc&&!dfoc,rgs=rgv&&!foc&&!dfoc;
