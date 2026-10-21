@@ -571,8 +571,12 @@ function initMap(){
   const zoom=d3.zoom().scaleExtent([1,14]).on("start",()=>{cv.classList.add("drag");MAP.gest=true;}).on("end",()=>{cv.classList.remove("drag");MAP.gest=false;})
     .on("zoom",e=>{MAP.t=e.transform;if(MAP.hover||MAP.hoverPt){MAP.hover=null;MAP.hoverPt=null;untip();}$("hudzoom").textContent=`ZOOM ${e.transform.k.toFixed(1)}×`;clearTimeout(MAP.ft);MAP.ft=setTimeout(()=>{MAP.dirty=true;kick();},110);kick();});
   MAP.zoom=zoom;/* o globo tem gestos próprios; o zoom do mapa plano não fica preso à tela (senão a rolagem da página vira zoom) */
-  const resize=()=>{const r=cv.getBoundingClientRect();const dpr=Math.min(2,window.devicePixelRatio||1);
-    MAP.w=r.width;MAP.h=MAP.mode==="globe"?(r.height||r.width*.64):r.width*LH/LW;MAP.dpr=dpr;MAP.s=r.width/LW;
+  // densidade limitada a ~8 milhões de pixels por canvas (memória e GPUs mais fracas em telas 4K, escala 150–200%);
+  // em movimento as camadas fixas ainda descem para densidade 1 (ver globeFrame)
+  const MAXPX=8e6;
+  const resize=()=>{const r=cv.getBoundingClientRect();const w=r.width,h=MAP.mode==="globe"?(r.height||r.width*.64):r.width*LH/LW;
+    const dpr=Math.max(.75,Math.min(2,window.devicePixelRatio||1,Math.sqrt(MAXPX/Math.max(1,w*h))));
+    MAP.w=w;MAP.h=h;MAP.dpr=dpr;MAP.s=r.width/LW;
     for(const c of [cv,base,lab]){c.width=Math.round(MAP.w*dpr);c.height=Math.round(MAP.h*dpr);}
     zoom.extent([[0,0],[MAP.w,MAP.h]]).translateExtent([[0,0],[MAP.w,MAP.h]]);MAP.dirty=true;MAP.labDirty=true;kick();};
   MAP.resize=resize;new ResizeObserver(resize).observe(cv);resize();
@@ -1108,7 +1112,7 @@ const CYDIR=["norte","nordeste","leste","sudeste","sul","sudoeste","oeste","noro
 function cyMove(t){const T=(t.trilha||[]).filter(p=>p[2]),a=T[T.length-2],b=T[T.length-1];if(!a||!b)return null;
   const h=(Date.parse(b[2])-Date.parse(a[2]))/3600e3;if(!(h>0))return null;const r=D2R,y=Math.sin((b[0]-a[0])*r)*Math.cos(b[1]*r),x=Math.cos(a[1]*r)*Math.sin(b[1]*r)-Math.sin(a[1]*r)*Math.cos(b[1]*r)*Math.cos((b[0]-a[0])*r);
   const brg=(Math.atan2(y,x)/D2R+360)%360;return{dir:$t(CYDIR[Math.round(brg/45)%8]),kmh:Math.round(hav(a[1],a[0],b[1],b[0])/h)};}
-const cyTime=t=>{const d=new Date(t);return isNaN(d)?"—":`${d.toLocaleDateString(LOC,{day:"2-digit",month:"2-digit"})} ${String(d.getUTCHours()).padStart(2,"0")}:${String(d.getUTCMinutes()).padStart(2,"0")} UTC`;};
+const cyTime=t=>{const d=new Date(t);return isNaN(d)?"—":`${d.toLocaleDateString(LOC,{day:"2-digit",month:"2-digit",timeZone:"UTC"})} ${String(d.getUTCHours()).padStart(2,"0")}:${String(d.getUTCMinutes()).padStart(2,"0")} UTC`;};
 const cyPos=(la,lo)=>`${Math.abs(la).toFixed(1)}°${la>=0?"N":"S"} ${Math.abs(lo).toFixed(1)}°${lo>=0?"E":"W"}`;
 const cyClass=v=>{const k=cyCat(v);return k?$t("cat. {n}",{n:k}):$t(v>=63?"tempestade trop.":"depressão trop.");};
 const CYAL={Red:["vermelho","impacto humanitário alto"],Orange:["laranja","impacto moderado"],Green:["verde","impacto baixo"]};
@@ -1266,10 +1270,15 @@ function globeFrame(ts){
   // camadas fixas (globo, rotas, aeroportos, rótulos) só são redesenhadas quando a vista ou o filtro mudam
   const W=MAP.cv.width,H=MAP.cv.height;
   if(!G.bc||G.bc.width!==W||G.bc.height!==H){G.bc=document.createElement("canvas");G.bc.width=W;G.bc.height=H;G.lc=document.createElement("canvas");G.lc.width=W;G.lc.height=H;G.bkey="";}
+  // em movimento, telas de alta densidade (escala >100%, 4K) desenham as camadas fixas em densidade 1:
+  // milhares de rotas semitransparentes custam proporcionalmente à área em pixels reais; parado, volta à nitidez total
+  const lo=mov&&dpr>1.05,ld=lo?1:dpr,LW2=Math.max(1,Math.round(w)),LH2=Math.max(1,Math.round(h));
+  if(lo&&(!G.bcLo||G.bcLo.width!==LW2||G.bcLo.height!==LH2)){G.bcLo=document.createElement("canvas");G.bcLo.width=LW2;G.bcLo.height=LH2;G.lcLo=document.createElement("canvas");G.lcLo.width=LW2;G.lcLo.height=LH2;}
+  const BC=lo?G.bcLo:G.bc,LC=lo?G.lcLo:G.lc;
   const key=[G.L.toFixed(3),G.P.toFixed(3),G.k.toFixed(4),W,H,mov?1:0,G.hc?G.hc.nm:"",G.cf||"",MAP.sel||"",MAP.hover?MAP.hover.id:"",MAP.hoverPt?MAP.hoverPt.c:"",$("hub").value,$("dst").value,$("org").value,FOC_AP,TX.ok?TX.mul:0,WX.on?1:0,WX.gt,WX.t,G.rv||0].join("|");
   if(key!==G.bkey||G.rts!==MAP.routes){G.bkey=key;G.rts=MAP.routes;
-  {const c=G.bc.getContext("2d");
-  c.setTransform(dpr,0,0,dpr,0,0);c.globalCompositeOperation="source-over";
+  {const c=BC.getContext("2d");
+  c.setTransform(ld,0,0,ld,0,0);c.globalCompositeOperation="source-over";
   c.fillStyle=MC.bg;c.fillRect(0,0,w,h);
   {const g=c.createRadialGradient(cx,cy,0,cx,cy,Math.max(w,h)*.7);g.addColorStop(0,"rgba(10,26,38,.75)");g.addColorStop(1,"rgba(5,13,20,0)");c.fillStyle=g;c.fillRect(0,0,w,h);}
   // atmosfera
@@ -1338,7 +1347,7 @@ function globeFrame(ts){
   if(WX.on)for(const q of V){if(!q.a.hub&&q.a.c!==selAp())continue;const w=wxFor(q.a.c);if(!w)continue;c.globalAlpha=Math.min(1,q.d*2.5);wxGlyph(c,q.x-q.a.r*MS()-11,q.y,w);const nx=NO.data[q.a.c];if(nx&&(nx.sn>0||nx.al.length))noBadge(c,q.x-q.a.r*MS()-11,q.y-10,nx);}
   c.globalAlpha=1;
   }
-  {const c=G.lc.getContext("2d");c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,W,H);c.setTransform(dpr,0,0,dpr,0,0);const V=G.vis,ms=MS();
+  {const c=LC.getContext("2d");c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,LC.width,LC.height);c.setTransform(ld,0,0,ld,0,0);const V=G.vis,ms=MS();
   // rótulos com placa escura, sem sobreposição
   {c.textBaseline="middle";const placed=[];
    const L=V.filter(q=>q.d>.18&&(q.a.hub||q.a.c===MAP.foc||(q.a.n>=2&&G.k>=2.6))).sort((p,q)=>((q.a.c===MAP.foc)-(p.a.c===MAP.foc))||(q.a.hub-p.a.hub)||(q.a.n-p.a.n));
@@ -1351,7 +1360,7 @@ function globeFrame(ts){
    G.lbox=placed;c.globalAlpha=1;if("letterSpacing" in c)c.letterSpacing="0px";}
   }}
   const RT=MAP.routes,V=G.vis,ms=MS();
-  c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation="source-over";c.globalAlpha=1;c.drawImage(G.bc,0,0);c.setTransform(dpr,0,0,dpr,0,0);
+  c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation="source-over";c.globalAlpha=1;c.drawImage(BC,0,0,W,H);c.setTransform(dpr,0,0,dpr,0,0);
   c.globalCompositeOperation="lighter";c.lineCap="round";
   // fluxo de pontos ao longo dos arcos
   {const ND=[1,.55,.3],dens=Math.max(1,RT.length/420),cs=Math.max(2,Math.round(2*dpr))/dpr,gs=Math.round(5*dpr)/dpr,D=G.grpD||(G.grpD={});for(const k in D)D[k].length=0;
@@ -1383,7 +1392,7 @@ function globeFrame(ts){
   lvDraw(c,cx,cy,R,cl,sl,cp,sp);
   cyDraw(c,cx,cy,R,cl,sl,cp,sp,time,V);
   if(MAP.hoverPt&&!MAP.hoverPt.hub){const q=V.find(v=>v.a===MAP.hoverPt);if(q){c.strokeStyle="#fff";c.lineWidth=1.2;c.beginPath();c.arc(q.x,q.y,3.5,0,7);c.stroke();}}
-  c.setTransform(1,0,0,1,0,0);c.drawImage(G.lc,0,0);c.setTransform(dpr,0,0,dpr,0,0);
+  c.setTransform(1,0,0,1,0,0);c.drawImage(LC,0,0,W,H);c.setTransform(dpr,0,0,dpr,0,0);
   lvSelLabels(c);
   if(!RM||G.anim||G.drag||G.pinch)kick();
 }
