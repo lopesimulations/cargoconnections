@@ -251,6 +251,10 @@ td.code{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums
 .sbbar a:hover,.sbbar a:focus-visible{background:rgba(61,242,182,.2);color:#fff}
 .sbl{display:block;margin-bottom:2px}.sbl a{font-family:var(--hx);font-size:11.5px;color:#3df2b6;text-decoration:none;margin-right:6px}.sbl a:hover{text-decoration:underline}
 .selbar .sbl{display:inline;margin-left:8px}
+.tablebox .lg{display:block}.tablebox .lg+.lg{margin-top:7px;padding-top:7px;border-top:1px dashed rgba(127,233,255,.16)}
+.tablebox .leg{display:inline-block;margin:0 6px 3px 0;padding:2px 6px;border-radius:2px;font-family:var(--hd);font-size:8.5px;letter-spacing:.14em;vertical-align:middle}
+.tablebox .leg.ida{color:#3df2b6;border:1px solid rgba(61,242,182,.55);background:rgba(61,242,182,.1)}
+.tablebox .leg.volta{color:#56b8ff;border:1px solid rgba(86,184,255,.55);background:rgba(86,184,255,.1)}
 .tablebox .adsb{font-family:var(--hx);font-size:11px;color:#3df2b6;letter-spacing:.03em}
 .tablebox .esc{display:block;font-family:var(--hx);font-size:11px;color:#ffcf8a;letter-spacing:.03em}.tablebox .esc.p{color:#c9a46a;font-style:italic}
 .tablebox .src{font-family:var(--hx);font-size:11.5px;color:#6f93a6;letter-spacing:.02em}
@@ -1473,7 +1477,18 @@ function render(){
   const ts=list.map(T).filter(x=>x!=null);
   const avg=ts.length?Math.round(ts.reduce((a,b)=>a+b,0)/ts.length):null;
   const shown=$("rotas").hidden?[]:view.slice(0,LIMIT);
-  $("rows").innerHTML=shown.map(r=>`<tr data-k="${esc(keyOf(r))}" class="${SEL===keyOf(r)?"sel":""}${r[1]==="---"||r[2]==="---"?" nosel":""}" title="${r[1]==="---"||r[2]==="---"?"":$t("Clique para ver esta rota no mapa")}"><td>${pill(r[0])}</td><td class="route">${cell(r[1])}</td><td class="route">${cell(r[2])}</td><td class="code">${esc(r[3])}</td><td class="op">${esc(r[4])}</td><td><span class="acc">${PHOTO[fam(r)]?`<span class="thumb tph" style="background-image:var(--ph-${PHKEY[fam(r)]})" role="img" aria-label="${esc(fam(r))}"></span>`:`<span class="thumb tsil">${SILC[fam(r)]||(SILC[fam(r)]=sil(fam(r)))}</span>`}<span class="acn">${esc(r[5])}</span></span></td><td class="time">${tcell(r)}</td><td class="src">${sbHtml(r,"sbl")}${esc(r[6])}${r[7]?`<br><span class="km">${$t("visto em {d}",{d:fmtDia(r[7])})}</span>`:""}${(v=>v?`<br><span class="adsb" title="${esc($t("indicativo {c}",{c:v.cs})+(v.via&&v.via.length?" · via "+v.via.join(" · "):""))}">✓ ${$t("ADS-B em {d}",{d:fmtDia(v.u)})}</span>`:"")(VER.vistas[r[1]+"|"+r[2]+"|"+r[4]])}</td></tr>`).join("");
+  // ida e volta da mesma companhia na mesma linha, com plaquinhas IDA / VOLTA
+  const acH=r=>`<span class="acc">${PHOTO[fam(r)]?`<span class="thumb tph" style="background-image:var(--ph-${PHKEY[fam(r)]})" role="img" aria-label="${esc(fam(r))}"></span>`:`<span class="thumb tsil">${SILC[fam(r)]||(SILC[fam(r)]=sil(fam(r)))}</span>`}<span class="acn">${esc(r[5])}</span></span>`;
+  const srcH=r=>`${sbHtml(r,"sbl")}${esc(r[6])}${r[7]?`<br><span class="km">${$t("visto em {d}",{d:fmtDia(r[7])})}</span>`:""}${(v=>v?`<br><span class="adsb" title="${esc($t("indicativo {c}",{c:v.cs})+(v.via&&v.via.length?" · via "+v.via.join(" · "):""))}">✓ ${$t("ADS-B em {d}",{d:fmtDia(v.u)})}</span>`:"")(VER.vistas[r[1]+"|"+r[2]+"|"+r[4]])}`;
+  const grp=[],used=new Set(),first=new Map();
+  shown.forEach((r,i)=>{const k=r[4]+"|"+r[1]+"|"+r[2];if(!first.has(k))first.set(k,i);});
+  shown.forEach((r,i)=>{if(used.has(i))return;used.add(i);let j=-1;
+    if(r[1]!=="---"&&r[2]!=="---"&&r[1]!==r[2]){const c=first.get(r[4]+"|"+r[2]+"|"+r[1]);if(c!=null&&!used.has(c)){j=c;used.add(c);}}
+    grp.push(j<0?[r]:[r,shown[j]]);});
+  const tag=t=>`<span class="leg ${t}">${$t(t==="ida"?"IDA":"VOLTA")}</span>`;
+  $("rows").innerHTML=grp.map(([r,b])=>{const two=f=>b?`<span class="lg">${tag("ida")}${f(r)}</span><span class="lg v">${tag("volta")}${f(b)}</span>`:f(r);
+    const nos=r[1]==="---"||r[2]==="---",on=SEL===keyOf(r)||(b&&SEL===keyOf(b));
+    return `<tr data-k="${esc(keyOf(r))}"${b?` data-k2="${esc(keyOf(b))}"`:""} class="${on?"sel":""}${nos?" nosel":""}${b?" iv":""}" title="${nos?"":$t("Clique para ver esta rota no mapa")}"><td>${pill(r[0])}${b&&b[0]!==r[0]?" "+pill(b[0]):""}</td><td class="route">${cell(r[1])}</td><td class="route">${cell(r[2])}</td><td class="code">${two(x=>esc(x[3]))}</td><td class="op">${esc(r[4])}</td><td>${b&&b[5].replace(/\*/g,"")!==r[5].replace(/\*/g,"")?two(acH):acH(b&&!/\*/.test(b[5])?b:r)}</td><td class="time">${two(tcell)}</td><td class="src">${two(srcH)}</td></tr>`;}).join("");
   $("more").hidden=view.length<=LIMIT;$("more").textContent=$t("Mostrar mais {a} (de {b} restantes)",{a:Math.min(250,view.length-LIMIT),b:view.length-LIMIT});
   $("empty").textContent=$t(LOADED?"Nenhuma rota com esses filtros. Limpe a busca ou escolha outro hub ou destino.":LOADMSG);
   $("empty").hidden=LOADED&&view.length>0;
@@ -1528,7 +1543,7 @@ function showLoadMsg(msg){LOADMSG=msg;LOADED=false;render();}
   },()=>showLoadMsg("Não foi possível ler a base de rotas agora. Recarregue a página para tentar de novo."));
 })();
 initMap();
-$("rows").addEventListener("click",e=>{const tr=e.target.closest("tr");if(!tr||tr.classList.contains("nosel"))return;const k=tr.dataset.k;
+$("rows").addEventListener("click",e=>{if(e.target.closest("a"))return;/* link do SimBrief não seleciona a linha */const tr=e.target.closest("tr");if(!tr||tr.classList.contains("nosel"))return;const k=(e.target.closest(".lg.v")&&tr.dataset.k2)||tr.dataset.k;
   if(SEL===k){selectRoute(null,{fly:false});return;}if(SEL)return;selectRoute(k,{fly:true,scrollTo:"map"});});
 $("selclear").addEventListener("click",()=>{selectRoute(null,{fly:false});if(MAP)d3.select(MAP.cv).transition().duration(600).call(MAP.zoom.transform,d3.zoomIdentity);});
 $("cards").addEventListener("click",e=>{if(e.target.closest("a"))return;const c=e.target.closest(".card");if(!c)return;$("ac").value=$("ac").value===c.dataset.f?"":c.dataset.f;render();});
