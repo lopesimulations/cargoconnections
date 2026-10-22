@@ -580,8 +580,13 @@ const selAp=()=>$("hub").value||FOC_AP||apMain($("org").value)||apMain($("dst").
 // país em foco (clique num país do globo): G.cf guarda o id do país; ctryOf diz em que país fica cada aeroporto
 const cfObj=()=>G.cf&&G.countries?G.countries.find(q=>q.f.id===G.cf)||null:null;
 let CTRY={},CTRYsrc=null;
+// ponto dentro do país em longitude/latitude planas (par-ímpar sobre todos os anéis): bem mais leve que o d3.geoContains
+// esférico e igual para localizar aeroportos; com milhares de aeroportos o primeiro clique num país ficava lento
+// países que cruzam os 180° (Rússia, Fiji): os anéis são "desdobrados" (sem saltos de 360°) e o ponto é testado também deslocado em ±360°
+function pip(q,x,y){if(!q.rg){const g=q.f.geometry||{};q.rg=(g.type==="Polygon"?[g.coordinates]:g.type==="MultiPolygon"?g.coordinates:[]).flat().map(R=>{let off=0,pv=null;return R.map(p=>{let x=p[0]+off;if(pv!==null){if(x-pv>180){off-=360;x-=360;}else if(x-pv<-180){off+=360;x+=360;}}pv=x;return[x,p[1]];});});}
+  for(const X of [x,x+360,x-360]){let ins=false;for(const R of q.rg)for(let i=0,j=R.length-1;i<R.length;j=i++){const a=R[i],b=R[j];if((a[1]>y)!==(b[1]>y)&&X<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])ins=!ins;}if(ins)return true;}return false;}
 function ctryOf(c){if(!G.countries||!C[c])return null;if(CTRYsrc!==G.countries){CTRYsrc=G.countries;CTRY={};}if(c in CTRY)return CTRY[c];
-  const hit=(lo,la)=>G.countries.find(q=>(q.bb[0][0]>q.bb[1][0]||(lo>=q.bb[0][0]-1&&lo<=q.bb[1][0]+1))&&la>=q.bb[0][1]-1&&la<=q.bb[1][1]+1&&d3.geoContains(q.f,[lo,la]));
+  const hit=(lo,la)=>G.countries.find(q=>(q.bb[0][0]>q.bb[1][0]||(lo>=q.bb[0][0]-1&&lo<=q.bb[1][0]+1))&&la>=q.bb[0][1]-1&&la<=q.bb[1][1]+1&&pip(q,lo,la));
   const [la,lo]=C[c];let q=hit(lo,la);/* aeroporto na costa: testa pontos vizinhos */
   for(let r=.15;!q&&r<=.6;r+=.15)for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1]]){q=hit(lo+dx*r,la+dy*r);if(q)break;}
   return CTRY[c]=q?q.f.id:null;}/* marcas em cruz dos hubs */
