@@ -1843,7 +1843,7 @@ function credRoute(){const on=location.hash==="#creditos",hero=document.querySel
 window.addEventListener("hashchange",credRoute);credRoute();
 // ---------- idiomas ----------
 function regOptions(cur){$("reg").innerHTML='<option value="">'+$t("Todas")+'</option>'+Object.keys(REGS).map(k=>`<option value="${k}">${esc($t(REGNAMES[k]||k))}</option>`).join("");$("reg").value=REGS[cur]?cur:"";}
-function applyLang(l){if(!LANGS.includes(l))l="en";LANG=l;LOC=LOCS[l];try{localStorage.setItem("lang",l);}catch(e){}
+function applyLang(l){if(!LANGS.includes(l))l="en";LANG=l;LOC=LOCS[l];try{sessionStorage.setItem("lang",l);}catch(e){}
   i18nStatic();AP["---"]=$t("não informado");
   const keep=["reg","hub","org","dst","dir","op","ac","sort"].map(id=>[id,$(id).value]);
   if(LOADED){regOptions($("reg").value);buildOptions();}else fillHubs();

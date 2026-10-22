@@ -2,7 +2,9 @@
 // se faltar uma tradução, aparece o português. Ordem das colunas: pt, en, es, fr, de.
 const LANGS=["pt","en","es","fr","de"];
 const LOCS={pt:"pt-BR",en:"en-GB",es:"es-ES",fr:"fr-FR",de:"de-DE"};
-let LANG=(()=>{try{const s=localStorage.getItem("lang");if(LANGS.includes(s))return s;}catch(e){}
+// idioma: o escolhido no botão vale só enquanto a aba está aberta; toda visita nova abre no idioma principal do navegador
+// (o primeiro da lista dele que o site tem; senão inglês). Apaga a escolha que versões antigas guardavam para sempre.
+let LANG=(()=>{try{localStorage.removeItem("lang");const s=sessionStorage.getItem("lang");if(LANGS.includes(s))return s;}catch(e){}
   for(const l of (navigator.languages||[navigator.language||""])){const k=String(l).slice(0,2).toLowerCase();if(LANGS.includes(k))return k;}
   return "en";})();
 let LOC=LOCS[LANG];
