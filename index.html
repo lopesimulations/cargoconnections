@@ -528,7 +528,7 @@ const SPEC_PAX=[[/A380/,{L:140,H:15,e:[6,3.8],n:2,hump:96}],[/747/,{L:130,H:14,e
   [/787/,{L:116,H:12,e:[6.8,4.2],n:1}],[/A350/,{L:128,H:13,e:[7,4.4],n:1}],[/A340/,{L:128,H:12,e:[4.6,3],n:2}],[/A330/,{L:118,H:12,e:[6,3.8],n:1}],
   [/767/,{L:108,H:11,e:[5.6,3.6],n:1}],[/757/,{L:104,H:9,e:[5,3.2],n:1}],[/A321/,{L:96,H:9,e:[4.6,2.9],n:1}],[/737 MAX 10|737-900|737 MAX 9/,{L:92,H:9,e:[4.6,2.9],n:1}],
   [/737|717|MD-/,{L:86,H:9,e:[4.4,2.8],n:1}],[/A320|C919/,{L:88,H:9,e:[4.6,2.9],n:1}],[/A31|A220/,{L:80,H:9,e:[4.4,2.8],n:1}],
-  [/E19|E195|E190/,{L:78,H:8,e:[4,2.5],n:1}],[/E17|ERJ|CRJ|Superjet|ARJ/,{L:70,H:8,e:[3.6,2.3],n:1}],[/ATR|Dash/,{L:62,H:9,e:[3,2],n:1}]];
+  [/E19|E195|E190/,{L:78,H:8,e:[4,2.5],n:1}],[/E17|ERJ|CRJ|Superjet|ARJ/,{L:70,H:8,e:[3.6,2.3],n:1}],[/ATR|Dash/,{L:62,H:9,e:[3,2],n:1}],[/Caravan/,{L:42,H:7,e:[2.2,1.5],n:1}]];
 function sil(f){
   let S=SPEC[f];if(!S&&PAX){const m=SPEC_PAX.find(([re])=>re.test(f));if(m)S=m[1];}if(!S) return '<svg viewBox="0 0 160 56" aria-hidden="true"></svg>';
   const x0=(160-S.L)/2, x1=x0+S.L, cy=30, H=S.H, top=cy-H/2, bot=cy+H/2;
@@ -1151,14 +1151,14 @@ const PAX_TN={A19N:"Airbus A319neo",A20N:"Airbus A320neo",A21N:"Airbus A321neo",
   B77L:"Boeing 777-200LR",B773:"Boeing 777-300",B77W:"Boeing 777-300ER",B788:"Boeing 787-8",B789:"Boeing 787-9",B78X:"Boeing 787-10",
   B744:"Boeing 747-400",B748:"Boeing 747-8",E170:"Embraer E170",E175:"Embraer E175",E75L:"Embraer E175",E75S:"Embraer E175",E190:"Embraer E190",
   E195:"Embraer E195",E290:"Embraer E190-E2",E295:"Embraer E195-E2",E145:"Embraer ERJ-145",CRJ2:"Bombardier CRJ200",CRJ7:"Bombardier CRJ700",
-  CRJ9:"Bombardier CRJ900",CRJX:"Bombardier CRJ1000",AT72:"ATR 72",AT75:"ATR 72-500",AT76:"ATR 72-600",DH8D:"De Havilland Dash 8-400",
+  CRJ9:"Bombardier CRJ900",CRJX:"Bombardier CRJ1000",AT72:"ATR 72",AT75:"ATR 72-500",AT76:"ATR 72-600",AT45:"ATR 42-500",AT46:"ATR 42-600",C208:"Cessna 208 Grand Caravan",DH8D:"De Havilland Dash 8-400",
   SU95:"Sukhoi Superjet 100",C919:"COMAC C919",AJ27:"COMAC ARJ21",B712:"Boeing 717",MD88:"McDonnell Douglas MD-88",MD90:"McDonnell Douglas MD-90"};
 // alcance prático de cada modelo (km), para a aeronave provável não cair num avião que não chega ao destino
 const PAX_RANGE={A19N:6800,A20N:6300,A21N:7400,A318:5700,A319:6900,A320:6100,A321:5900,BCS1:5700,BCS3:6200,A332:13400,A333:11700,A338:15000,A339:13300,
   A343:13500,A346:14400,A359:15000,A35K:16100,A388:15000,B736:5900,B737:6300,B738:5400,B739:5000,B37M:6500,B38M:6500,B39M:6500,B3XM:6100,B752:7200,
   B753:6300,B763:11000,B764:10400,B772:12000,B77L:15800,B773:11000,B77W:13600,B788:13600,B789:14000,B78X:11900,B744:13400,B748:14300,E170:3900,
   E175:3700,E75L:3700,E75S:3700,E190:4500,E195:4000,E290:5300,E295:4800,E145:2800,CRJ2:3000,CRJ7:2600,CRJ9:2900,CRJX:2700,AT72:1500,AT75:1500,
-  AT76:1500,DH8D:2000,SU95:3000,C919:4000,AJ27:2200,B712:2600,MD88:3700,MD90:3800};
+  AT76:1500,AT45:1300,AT46:1300,C208:1700,DH8D:2000,SU95:3000,C919:4000,AJ27:2200,B712:2600,MD88:3700,MD90:3800};
 let PAXOPC={},PAXFROTA={};/* companhia -> códigos ICAO e frota atual na Wikipedia (pax.json) */
 const paxNome=c=>(PAX_TN[c]||c)+" ("+c+")";
 // maior trecho da rota (com escala, cada perna; é o que o avião precisa alcançar)
@@ -1184,19 +1184,26 @@ function paxAeronaves(){const V=VER.vistas,F=VER.frota||{};for(const k of Object
   const obs=new Map();
   for(const r of R){r[10]=0;r[5]="";const v=V[r[1]+"|"+r[2]+"|"+r[4]];if(!v||!v.t)continue;const top=Object.entries(v.t).sort((a,b)=>b[1]-a[1]);
     r[5]=top.slice(0,2).map(([c])=>paxNome(c)).join(" / ");const k=pathKm(r[1],r[2]);if(k){if(!obs.has(r[4]))obs.set(r[4],[]);obs.get(r[4]).push([k,top[0][0]]);}}
-  // 2) provável: o modelo da companhia numa rota vista de distância parecida; senão o mais comum da frota que tem alcance
-  //    (em rota curta, prefere os de corredor único quando a companhia tem)
+  // 2) provável. Base: frota vista no ar (ADS-B, com contagem) somada à frota oficial da Wikipedia. Escolha:
+  //    a) com 5 ou mais rotas da companhia vistas no ADS-B, o modelo dela numa rota de distância parecida;
+  //    b) senão, a categoria de avião certa para a distância (turboélice até ~330 km, ou até 750 km quando um dos aeroportos é pequeno; regional até 1.500, corredor único
+  //       até 5.500, widebody acima), dentro do que a companhia tem; sem essa categoria, a mais próxima; empate: o mais visto no ar
+  const cls=t=>/^(AT|DH8|C208)/.test(t)?0:/^(E1|E2|E7|CRJ|SU95|AJ27|E145)/.test(t)?1:/^(A3[3-9]|A34|A35|A38|B7[4-8])/.test(t)&&!/^B73|^B75|^B712/.test(t)?3:2;
+  const quer=(k,peq)=>k<330||(peq&&k<750)?0:k<1500?1:k<5500?2:3;
+  // aeroporto pequeno (até 3 destinos na base): companhia com turboélice usa ele também em rotas médias (ex.: ATR da Azul)
+  const deg=new Map();for(const r of R)for(const [a,b] of [[r[1],r[2]],[r[2],r[1]]]){if(!deg.has(a))deg.set(a,new Set());deg.get(a).add(b);}
+  const peq=r=>Math.min((deg.get(r[1])||new Set()).size,(deg.get(r[2])||new Set()).size)<=3;
   for(const r of R){if(r[5])continue;
-    if(r[9]==="?"){let t="",mx=0;for(const x of paxFrota(r[4],F))if((PAX_RANGE[x]||0)>mx){mx=PAX_RANGE[x];t=x;}if(t){r[5]=paxNome(t);r[10]=1;}continue;}/* escala não identificada: o de maior alcance */
+    const fr={};for(const c of (PAXOPC[r[4]]||"").split(" "))for(const [t,x] of Object.entries(F[c]||{}))fr[t]=(fr[t]||0)+x[0];
+    for(const t of (PAXFROTA[r[4]]||"").split(" "))if(t&&!(t in fr))fr[t]=0;
+    if(r[9]==="?"){let t="",mx=0;for(const x in fr)if((PAX_RANGE[x]||0)>mx){mx=PAX_RANGE[x];t=x;}if(t){r[5]=paxNome(t);r[10]=1;}continue;}/* escala não identificada: o de maior alcance */
     const k=legMax(r);if(!k)continue;const ok=t=>(PAX_RANGE[t]||0)*.9>=k;
-    let best="",bd=Math.log(1.5);for(const [kk,t] of obs.get(r[4])||[]){const dd=Math.abs(Math.log(kk/k));if(dd<bd&&ok(t)){bd=dd;best=t;}}
-    if(!best){const fr={};for(const c of (PAXOPC[r[4]]||"").split(" "))for(const [t,x] of Object.entries(F[c]||{}))fr[t]=(fr[t]||0)+x[0];
-      let cand=Object.entries(fr).filter(([t])=>ok(t));const curto=cand.filter(([t])=>PAX_RANGE[t]<=Math.max(3*k,7500));if(curto.length)cand=curto;
-      cand.sort((a,b)=>b[1]-a[1]);if(cand.length)best=cand[0][0];}
-    // 3) companhia ainda não vista no ar: frota atual listada na Wikipedia, o modelo de alcance mais ajustado à rota
-    if(!best){let cand=(PAXFROTA[r[4]]||"").split(" ").filter(t=>t&&ok(t));const curto=cand.filter(t=>PAX_RANGE[t]<=Math.max(3*k,7500));if(curto.length)cand=curto;
-      cand.sort((a,b)=>Math.abs(Math.log(PAX_RANGE[a]/(k*1.3)))-Math.abs(Math.log(PAX_RANGE[b]/(k*1.3))));if(cand.length)best=cand[0];}
-    if(!best){let mx=0;for(const t of paxFrota(r[4],F))if((PAX_RANGE[t]||0)*1.05>=k&&PAX_RANGE[t]>mx){mx=PAX_RANGE[t];best=t;}}/* rota no limite: o de maior alcance */
+    let best="";const ob=obs.get(r[4])||[];
+    if(ob.length>=5){let bd=Math.log(1.5);for(const [kk,t] of ob){const dd=Math.abs(Math.log(kk/k));if(dd<bd&&ok(t)){bd=dd;best=t;}}}
+    if(!best){let cand=Object.keys(fr).filter(ok);const wk=new Set((PAXFROTA[r[4]]||"").split(" ")),cw=cand.filter(t=>wk.has(t));if(cw.length)cand=cw;/* frota oficial de passageiros primeiro (no ar também aparecem cargueiros e fretados) */
+      if(cand.length){const q=quer(k,peq(r)),nota=t=>{const d=cls(t)-q;return Math.abs(d)+(d<0?.5:0)+(fr[t]?0:.6);};/* modelo nunca visto no ar pela companhia perde um pouco */
+      cand.sort((a,b)=>nota(a)-nota(b)||fr[b]-fr[a]);best=cand[0];}}
+    if(!best){let mx=0;for(const t in fr)if((PAX_RANGE[t]||0)*1.05>=k&&PAX_RANGE[t]>mx){mx=PAX_RANGE[t];best=t;}}/* rota no limite: o de maior alcance */
     if(best){r[5]=paxNome(best);r[10]=1;}}
   fillFams();}
 async function cyFetch(){try{const r=await fetch(`ciclones.json?t=${Math.floor(Date.now()/300000)}`,{cache:"no-store"});if(!r.ok)return;const j=await r.json();

@@ -5,11 +5,11 @@ import fs from "node:fs";
 
 const [inp, out] = process.argv.slice(2);
 const J = JSON.parse(fs.readFileSync(inp, "utf8"));
-// 10 principais hubs de passageiros por região (+ Manaus na América do Sul e Honolulu na América do Norte)
+// 10 principais hubs de passageiros por região (+ Manaus e Viracopos na América do Sul e Honolulu na América do Norte)
 const HUBS = {
   NAM: ["ATL", "DFW", "DEN", "ORD", "LAX", "JFK", "LAS", "MCO", "CLT", "MIA", "HNL"],
   CAM: ["MEX", "CUN", "GDL", "TIJ", "MTY", "PTY", "SJO", "SDQ", "PUJ", "SJU"],
-  SAM: ["BOG", "GRU", "SCL", "LIM", "CGH", "BSB", "AEP", "GIG", "MDE", "CNF", "MAO"],
+  SAM: ["BOG", "GRU", "SCL", "LIM", "CGH", "BSB", "AEP", "GIG", "MDE", "CNF", "MAO", "VCP"],
   EUR: ["LHR", "IST", "CDG", "AMS", "MAD", "FRA", "BCN", "FCO", "SAW", "MUC"],
   LES: ["SVO", "VKO", "DME", "LED", "AER", "WAW", "BUD", "PRG", "OTP", "KRK"],
   OM: ["DXB", "DOH", "JED", "RUH", "AUH", "TLV", "KWI", "MCT", "SHJ", "DMM"],
@@ -81,8 +81,10 @@ const TIPO = [[/A220-100|CS100/, "BCS1"], [/A220-300|CS300/, "BCS3"], [/A319neo/
   [/787-8/, "B788"], [/787-9/, "B789"], [/787-10/, "B78X"], [/747-400/, "B744"], [/747-8/, "B748"], [/717/, "B712"],
   [/E190-E2|E190 E2|E2-190/, "E290"], [/E195-E2|E195 E2|E2-195/, "E295"], [/E170|Embraer 170/, "E170"], [/E175|Embraer 175/, "E175"],
   [/E190|Embraer 190/, "E190"], [/E195|Embraer 195/, "E195"], [/ERJ[- ]?145/, "E145"], [/CRJ[- ]?200/, "CRJ2"], [/CRJ[- ]?700/, "CRJ7"],
-  [/CRJ[- ]?900/, "CRJ9"], [/CRJ[- ]?1000/, "CRJX"], [/ATR 72/, "AT76"], [/Q400|Dash 8-400|DHC-8-400/, "DH8D"], [/Superjet/, "SU95"],
+  [/CRJ[- ]?900/, "CRJ9"], [/CRJ[- ]?1000/, "CRJX"], [/ATR 72/, "AT76"], [/ATR 42/, "AT46"], [/Cessna 208|Caravan/, "C208"], [/Q400|Dash 8-400|DHC-8-400/, "DH8D"], [/Superjet/, "SU95"],
   [/C919/, "C919"], [/ARJ21|C909/, "AJ27"]];
+// frota informada à mão quando o artigo não tem tabela "Fleet" que dê para ler
+const FROTA_EXTRA = { "Azul Conecta": "C208" };
 const frota = [];
 for (let i = 0; i < ops.length; i++) {
   const t = titulo[ops[i]] || ops[i], tipos = new Set();
@@ -101,7 +103,7 @@ for (let i = 0; i < ops.length; i++) {
       }
     }
   } catch (e) { /* sem frota na Wikipedia */ }
-  frota.push([...tipos].join(" "));
+  frota.push(tipos.size ? [...tipos].join(" ") : FROTA_EXTRA[ops[i]] || "");
   await new Promise(r => setTimeout(r, 150));
 }
 console.log(`${frota.filter(Boolean).length} de ${ops.length} companhias com frota na Wikipedia`);

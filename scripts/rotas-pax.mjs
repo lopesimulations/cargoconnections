@@ -13,7 +13,7 @@ const AP = P.aeroportos, IATA = Object.fromEntries(Object.entries(P.icao || {}).
 const TYPES = ["A19N", "A20N", "A21N", "A318", "A319", "A320", "A321", "BCS1", "BCS3", "A332", "A333", "A338", "A339", "A343", "A346",
   "A359", "A35K", "A388", "B736", "B737", "B738", "B739", "B37M", "B38M", "B39M", "B3XM", "B752", "B753", "B763", "B764", "B772",
   "B77L", "B773", "B77W", "B788", "B789", "B78X", "B744", "B748", "E170", "E175", "E75L", "E75S", "E190", "E195", "E290", "E295",
-  "CRJ2", "CRJ7", "CRJ9", "CRJX", "AT72", "AT75", "AT76", "DH8D", "SU95", "C919", "AJ27", "E145", "B712", "MD88", "MD90"];
+  "CRJ2", "CRJ7", "CRJ9", "CRJX", "AT72", "AT75", "AT76", "AT45", "AT46", "C208", "DH8D", "SU95", "C919", "AJ27", "E145", "B712", "MD88", "MD90"];
 
 // rotas da base por par de aeroportos (sem sentido) e companhias por código ICAO
 const byPair = new Map(), byCode = new Map();
