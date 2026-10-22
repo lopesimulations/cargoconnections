@@ -1154,14 +1154,34 @@ const PAX_RANGE={A19N:6800,A20N:6300,A21N:7400,A318:5700,A319:6900,A320:6100,A32
   AT76:1500,DH8D:2000,SU95:3000,C919:4000,AJ27:2200,B712:2600,MD88:3700,MD90:3800};
 let PAXOPC={},PAXFROTA={};/* companhia -> códigos ICAO e frota atual na Wikipedia (pax.json) */
 const paxNome=c=>(PAX_TN[c]||c)+" ("+c+")";
-function paxAeronaves(){const V=VER.vistas,F=VER.frota||{};for(const k of Object.keys(V)){const [o,d,op]=k.split("|"),kr=d+"|"+o+"|"+op;if(!V[kr])V[kr]=V[k];}
+// maior trecho da rota (com escala, cada perna; é o que o avião precisa alcançar)
+const legMax=r=>{const L=[r[1],...(r[8]||[]),r[2]];let m=0;for(let i=1;i<L.length;i++){const x=km(L[i-1],L[i]);if(x==null)return null;m=Math.max(m,x);}return m;};
+// modelos conhecidos da companhia: vistos no ar (ADS-B) ou listados na frota da Wikipedia
+const paxFrota=(op,F)=>{const s=new Set((PAXFROTA[op]||"").split(" ").filter(Boolean));for(const c of (PAXOPC[op]||"").split(" "))for(const t in F[c]||{})s.add(t);return s;};
+// escalas do Pax: confirmadas pelo ADS-B (o voo foi visto fazendo A→X→B) ou prováveis, quando a rota passa 5% do alcance
+// nominal do avião de maior alcance da companhia: o aeroporto X onde ela voa A–X e X–B com o menor desvio. Sem X plausível
+// a rota fica sem escala (a frota conhecida pode estar incompleta; melhor não afirmar uma parada que talvez não exista)
+function paxEscalas(V,F){const viz=new Map();
+  for(const r of R){const m=viz.get(r[4])||viz.set(r[4],new Map()).get(r[4]);for(const [a,b] of [[r[1],r[2]],[r[2],r[1]]]){if(!m.has(a))m.set(a,new Set());m.get(a).add(b);}}
+  const alc=new Map();
+  for(const r of R){r[8]=null;r[9]="";const v=V[r[1]+"|"+r[2]+"|"+r[4]];if(v&&v.via&&v.via.length){r[8]=[...v.via];r[9]="c";continue;}
+    const k=km(r[1],r[2]);if(!k)continue;
+    if(!alc.has(r[4])){let mx=0;for(const t of paxFrota(r[4],F))mx=Math.max(mx,PAX_RANGE[t]||0);alc.set(r[4],mx*1.05);}
+    const lim=alc.get(r[4]);if(!lim||k<=lim)continue;
+    const m=viz.get(r[4]),A=m.get(r[1])||new Set(),B=m.get(r[2])||new Set();let best=null,bd=Infinity;
+    for(const x of A){if(x===r[2]||!B.has(x))continue;const a=km(r[1],x),b=km(x,r[2]);if(a==null||b==null||a>lim||b>lim)continue;if(a+b<bd){bd=a+b;best=x;}}
+    if(best&&bd<=k*1.25){r[8]=[best];r[9]="p";}}}
+function paxAeronaves(){const V=VER.vistas,F=VER.frota||{};for(const k of Object.keys(V)){const [o,d,op]=k.split("|"),kr=d+"|"+o+"|"+op;if(!V[kr]){V[kr]=Object.assign({},V[k]);if(V[k].via)V[kr].via=[...V[k].via].reverse();}}
+  paxEscalas(V,F);
   // 1) vista no ADS-B nesta rota (até 2 modelos, o mais frequente primeiro)
   const obs=new Map();
   for(const r of R){r[10]=0;r[5]="";const v=V[r[1]+"|"+r[2]+"|"+r[4]];if(!v||!v.t)continue;const top=Object.entries(v.t).sort((a,b)=>b[1]-a[1]);
     r[5]=top.slice(0,2).map(([c])=>paxNome(c)).join(" / ");const k=pathKm(r[1],r[2]);if(k){if(!obs.has(r[4]))obs.set(r[4],[]);obs.get(r[4]).push([k,top[0][0]]);}}
   // 2) provável: o modelo da companhia numa rota vista de distância parecida; senão o mais comum da frota que tem alcance
   //    (em rota curta, prefere os de corredor único quando a companhia tem)
-  for(const r of R){if(r[5])continue;const k=pathKm(r[1],r[2]);if(!k)continue;const ok=t=>(PAX_RANGE[t]||0)*.9>=k;
+  for(const r of R){if(r[5])continue;
+    if(r[9]==="?"){let t="",mx=0;for(const x of paxFrota(r[4],F))if((PAX_RANGE[x]||0)>mx){mx=PAX_RANGE[x];t=x;}if(t){r[5]=paxNome(t);r[10]=1;}continue;}/* escala não identificada: o de maior alcance */
+    const k=legMax(r);if(!k)continue;const ok=t=>(PAX_RANGE[t]||0)*.9>=k;
     let best="",bd=Math.log(1.5);for(const [kk,t] of obs.get(r[4])||[]){const dd=Math.abs(Math.log(kk/k));if(dd<bd&&ok(t)){bd=dd;best=t;}}
     if(!best){const fr={};for(const c of (PAXOPC[r[4]]||"").split(" "))for(const [t,x] of Object.entries(F[c]||{}))fr[t]=(fr[t]||0)+x[0];
       let cand=Object.entries(fr).filter(([t])=>ok(t));const curto=cand.filter(([t])=>PAX_RANGE[t]<=Math.max(3*k,7500));if(curto.length)cand=curto;
@@ -1169,6 +1189,7 @@ function paxAeronaves(){const V=VER.vistas,F=VER.frota||{};for(const k of Object
     // 3) companhia ainda não vista no ar: frota atual listada na Wikipedia, o modelo de alcance mais ajustado à rota
     if(!best){let cand=(PAXFROTA[r[4]]||"").split(" ").filter(t=>t&&ok(t));const curto=cand.filter(t=>PAX_RANGE[t]<=Math.max(3*k,7500));if(curto.length)cand=curto;
       cand.sort((a,b)=>Math.abs(Math.log(PAX_RANGE[a]/(k*1.3)))-Math.abs(Math.log(PAX_RANGE[b]/(k*1.3))));if(cand.length)best=cand[0];}
+    if(!best){let mx=0;for(const t of paxFrota(r[4],F))if((PAX_RANGE[t]||0)*1.05>=k&&PAX_RANGE[t]>mx){mx=PAX_RANGE[t];best=t;}}/* rota no limite: o de maior alcance */
     if(best){r[5]=paxNome(best);r[10]=1;}}
   fillFams();}
 async function cyFetch(){try{const r=await fetch(`ciclones.json?t=${Math.floor(Date.now()/300000)}`,{cache:"no-store"});if(!r.ok)return;const j=await r.json();

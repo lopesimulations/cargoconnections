@@ -126,12 +126,13 @@ let casadas = 0;
 for (const [fl, path] of rt) {
   const ops = byCode.get(fl.slice(0, 3)), t = snap.avioes.find(a => a.fl === fl).t;
   let ok = false;
-  for (let x = 0; x + 1 < path.length; x++) {
-    for (const r of byPair.get([path[x], path[x + 1]].sort().join("|")) || []) {
+  // qualquer par do caminho (ex.: GRU-LFW-ADD casa GRU-LFW, LFW-ADD e GRU-ADD "via LFW"), como na verificação de carga
+  for (let x = 0; x + 1 < path.length; x++) for (let y = x + 1; y < path.length; y++) {
+    for (const r of byPair.get([path[x], path[y]].sort().join("|")) || []) {
       if (!ops.has(r[2])) continue;
-      // chave no sentido em que a rota está no pax.json: origem|destino|companhia
-      const k = `${r[0]}|${r[1]}|${P.ops[r[2]]}`, v = V[k] || (V[k] = { n: 0, t: {} });
-      v.u = day; v.n++; v.cs = fl; v.t[t] = (v.t[t] || 0) + 1;
+      // chave no sentido em que a rota está no pax.json: origem|destino|companhia; escalas no mesmo sentido
+      const k = `${r[0]}|${r[1]}|${P.ops[r[2]]}`, v = V[k] || (V[k] = { n: 0, t: {} }), via = path.slice(x + 1, y);
+      v.u = day; v.n++; v.cs = fl; v.t[t] = (v.t[t] || 0) + 1; v.via = r[0] === path[x] ? via : via.reverse();
       v.d = v.d || []; if (!v.d.includes(day)) v.d.push(day);
       ok = true;
     }
