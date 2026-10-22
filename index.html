@@ -662,6 +662,8 @@ const toL=(sx,sy)=>{const t=MAP.t,s=MAP.s;return[(sx-t.x)/(t.k*s),(sy-t.y)/(t.k*
 function local(e){const r=MAP.cv.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top];}
 function pickPt(e){if(MAP.mode==="globe")return gPick(e);const [mx,my]=local(e);let best=null,bd=7;for(const a of MAP.pts){const [x,y]=toS(a.x,a.y);const d=Math.hypot(x-mx,y-my);if(d<bd){bd=d;best=a;}}return best;}
 function segDist(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,l=dx*dx+dy*dy;let t=l?((px-ax)*dx+(py-ay)*dy)/l:0;t=Math.max(0,Math.min(1,t));return Math.hypot(px-ax-t*dx,py-ay-t*dy);}
+// sem nenhum filtro ativo as linhas são só decoração do globo: passam a responder ao mouse com hub, país, aeroporto ou outro filtro escolhido
+const rtLive=()=>!!(SEL||MAP.apOn||["reg","op","ac","q"].some(id=>$(id).value));
 function hoverAt(e){
   const GL=MAP.mode==="globe";const [mx,my]=local(e),[lx,ly]=toL(mx,my),ll=GL?(Math.hypot(mx-MAP.w/2,my-MAP.h/2)<gR()?G.proj.invert([mx,my]):null):MAP.proj.invert([lx,ly]);
   if(GL){const hc=ll&&!isNaN(ll[0])?G.countries.find(q=>ll[0]>=q.bb[0][0]-1&&ll[0]<=q.bb[1][0]+1&&ll[1]>=q.bb[0][1]-1&&ll[1]<=q.bb[1][1]+1&&d3.geoContains(q.f,ll))||G.countries.find(q=>q.bb[0][0]>q.bb[1][0]&&d3.geoContains(q.f,ll))||null:null;if(hc!==G.hc){G.hc=hc;kick();}}
@@ -670,8 +672,8 @@ function hoverAt(e){
   if(lva){MAP.hover=null;MAP.hoverPt=null;MAP.cv.classList.add("pick");tip(e,lvTip(lva));return;}
   const cyh=GL?cyPick(mx,my):null;if(cyh!==CY.hover){CY.hover=cyh;kick();}
   if(cyh){MAP.hover=null;MAP.hoverPt=null;MAP.cv.classList.add("pick");tip(e,cyHoverTip(cyh));return;}
-  if(!a&&GL)rt=gHoverRoute(mx,my);
-  else if(!a){const thr=6/(MAP.t.k*MAP.s);let bd=thr;
+  if(!a&&GL&&rtLive())rt=gHoverRoute(mx,my);
+  else if(!a&&!GL&&rtLive()){const thr=6/(MAP.t.k*MAP.s);let bd=thr;
     for(const r of MAP.routes){if((MAP.sel&&r.id!==MAP.sel)||hideR(r))continue;if(lx<r.bb[0]-thr||lx>r.bb[2]+thr||ly<r.bb[1]-thr||ly>r.bb[3]+thr)continue;
       for(const sg of r.segs)for(let i=1;i<sg.length;i++){const d=segDist(lx,ly,sg[i-1][0],sg[i-1][1],sg[i][0],sg[i][1]);if(d<bd){bd=d;rt=r;}}}}
   const ch=MAP.hover!==rt||MAP.hoverPt!==a;MAP.hover=rt;MAP.hoverPt=a;
