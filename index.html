@@ -1,6 +1,6 @@
 <meta charset="utf-8">
 <script>/* Passageiros: o pax.json começa a baixar já no início da página, em paralelo com o resto (mesma regra do MODE) */
-try{const q=new URLSearchParams(location.search);if(q.has("passageiros")||(!q.has("carga")&&localStorage.getItem("modo")==="pax"))window.__PAXP=fetch("pax.json",{cache:"no-cache"});}catch(e){}</script>
+try{const q=new URLSearchParams(location.search);if(q.has("passageiros")||(!q.has("carga")&&sessionStorage.getItem("modo")==="pax"))window.__PAXP=fetch("pax.json",{cache:"no-cache"});}catch(e){}</script>
 <title>Cargo Connections</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="icon" href="favicon.png"><link rel="stylesheet" href="fonts.css?v=2">
@@ -1708,7 +1708,7 @@ function render(){
   drawMap(list);
   if(MAP){MAP.sel=SEL;MAP.dirty=true;kick();}
   lvSelBar();
-  if(LOADED)try{localStorage.setItem("f",JSON.stringify({q:$("q").value,h,d,o,s,a,g,t:$("dst").value,p:$("org").value}))}catch(e){}
+  if(LOADED)try{sessionStorage.setItem("f",JSON.stringify({q:$("q").value,h,d,o,s,a,g,t:$("dst").value,p:$("org").value}))}catch(e){}
 }
 
 ["q","hub","org","dst","dir","op","ac","sort"].forEach(id=>$(id).addEventListener("input",()=>{LIMIT=LIM0;render();}));
@@ -1720,12 +1720,15 @@ $("reset").addEventListener("click",()=>{["q","reg","org","dst","dir","op","ac",
 // ---------- Dados: base compartilhada (atualizada uma vez por dia) ----------
 let LASTSIG="",LOADED=false,META=null,LOADMSG="Carregando as rotas da base de dados…",SAVEDF=null;
 // ---------- modo do site: Carga (base embutida) ou Passageiros (pax.json) ----------
-const MODE=(()=>{const q=new URLSearchParams(location.search);if(q.has("passageiros"))return"pax";if(q.has("carga"))return"carga";try{return localStorage.getItem("modo")==="pax"?"pax":(localStorage.getItem("modo")?"carga":"");}catch(e){return"";}})();
+const MODE=(()=>{const q=new URLSearchParams(location.search);if(q.has("passageiros"))return"pax";if(q.has("carga"))return"carga";try{return sessionStorage.getItem("modo")==="pax"?"pax":(sessionStorage.getItem("modo")?"carga":"");}catch(e){return"";}})();
 const PAX=MODE==="pax",LIM0=PAX?250:Infinity;/* passageiros: tabela em páginas de 250 (são dezenas de milhares de rotas) */
-{const pick=MODE||"carga";try{localStorage.setItem("modo",pick);}catch(e){}document.body.classList.toggle("pax",PAX);
+{const pick=MODE||"carga";try{sessionStorage.setItem("modo",pick);}catch(e){}document.body.classList.toggle("pax",PAX);
   document.querySelectorAll(".modes a,.entry-opt").forEach(a=>{if(a.closest(".modes")&&a.dataset.m===(PAX?"pax":"carga"))a.setAttribute("aria-current","page");
-    a.addEventListener("click",e=>{const m=a.dataset.m;try{localStorage.setItem("modo",m);}catch(x){}if((m==="pax")===PAX){e.preventDefault();$("entry").hidden=true;history.replaceState(null,"",(m==="pax"?"?passageiros":"?carga")+location.hash);}});});
-  if(!MODE){try{localStorage.removeItem("modo");}catch(e){}$("entry").hidden=false;}
+    a.addEventListener("click",e=>{const m=a.dataset.m;try{sessionStorage.setItem("modo",m);}catch(x){}if((m==="pax")===PAX){e.preventDefault();$("entry").hidden=true;history.replaceState(null,"",(m==="pax"?"?passageiros":"?carga")+location.hash);}});});
+  // modo e filtros valem só enquanto a aba está aberta: ao fechar e abrir o site de novo, volta a tela de escolha
+  // (links com ?carga ou ?passageiros continuam abrindo direto no modo); apaga o que versões antigas guardavam para sempre
+  try{localStorage.removeItem("modo");localStorage.removeItem("f");}catch(e){}
+  if(!MODE){try{sessionStorage.removeItem("modo");}catch(e){}$("entry").hidden=false;}
   if(PAX){for(const [sel,k] of [[".hero-top .tagline","Rotas de passageiros dos principais hubs do mundo"],[".hero-top .eyebrow","Américas · Europa · África · Oriente Médio · Ásia · Oceania · voos de passageiros"]]){const el=document.querySelector(sel);if(el){el.dataset.i18n=k;el.textContent=$t(k);}}
     document.querySelector(".hero-top h1").textContent="Pax Connections";document.querySelector(".hero").setAttribute("aria-label","Pax Connections");document.title="Pax Connections";}}
 // cidades com mais de um aeroporto (código de cidade usado pelas companhias)
@@ -1741,7 +1744,7 @@ const isCity=v=>typeof v==="string"&&v[0]==="@";
 const cityAps=v=>isCity(v)&&CIDADES[v.slice(1)]?CIDADES[v.slice(1)][1]:null;
 const apSet=v=>{const c=cityAps(v);return c?new Set(c):new Set(v?[v]:[]);};
 const apMain=v=>{const c=cityAps(v);return c?(c.find(x=>C[x])||c[0]):v;};/* aeroporto principal da cidade (para centralizar o globo) */
-try{SAVEDF=JSON.parse(localStorage.getItem("f")||"null");}catch(e){}
+try{SAVEDF=JSON.parse(sessionStorage.getItem("f")||"null");}catch(e){}
 // formatador de data reaproveitado (criar um por linha da tabela era lento) e datas já formatadas guardadas
 const fmtDia=iso=>{if(!iso)return"";const F=fmtDia;if(F.loc!==LOC){F.loc=LOC;F.f=new Intl.DateTimeFormat(LOC,{day:"2-digit",month:"2-digit",year:"numeric"});F.c=new Map();}
   let v=F.c.get(iso);if(v===undefined){const d=new Date(iso.length===10?iso+"T12:00:00":iso);v=isNaN(d)?iso:F.f.format(d);F.c.set(iso,v);}return v;};
