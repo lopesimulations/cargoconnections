@@ -30,7 +30,7 @@ jobs:
         run: git fetch --depth=1 origin dados-pax && git show FETCH_HEAD:verificacao-pax.json > anterior.json || echo "primeira verificação"
 
       - name: Verificar as rotas de passageiros com ADS-B
-        run: node scripts/rotas-pax.mjs pax.json verificacao-pax.json anterior.json https://lopesimulations.github.io/cargoconnections/verificacao-pax.json
+        run: node scripts/rotas-pax.mjs pax.json verificacao-pax.json anterior.json https://lopesimulations.github.io/skyconnections/verificacao-pax.json
 
       - name: Guardar no ramo dados-pax
         run: |

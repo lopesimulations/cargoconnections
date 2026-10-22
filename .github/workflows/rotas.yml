@@ -27,7 +27,7 @@ jobs:
           node-version: 20
 
       - name: Verificar as rotas com ADS-B
-        run: node scripts/rotas.mjs index.html verificacao.json verificacao.json https://lopesimulations.github.io/cargoconnections/verificacao.json
+        run: node scripts/rotas.mjs index.html verificacao.json verificacao.json https://lopesimulations.github.io/skyconnections/verificacao.json
 
       - name: Guardar a verificação no repositório
         run: |

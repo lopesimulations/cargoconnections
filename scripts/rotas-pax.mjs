@@ -20,7 +20,7 @@ const byPair = new Map(), byCode = new Map();
 P.opc.forEach((c, i) => { for (const x of String(c || "").split(" ").filter(Boolean)) { if (!byCode.has(x)) byCode.set(x, new Set()); byCode.get(x).add(i); } });
 for (const r of P.rotas) { const k = [r[0], r[1]].sort().join("|"); if (!byPair.has(k)) byPair.set(k, []); byPair.get(k).push(r); }
 
-const UA = { "user-agent": "paxconnections-verificacao (+https://lopesimulations.github.io/cargoconnections/?passageiros)" };
+const UA = { "user-agent": "paxconnections-verificacao (+https://lopesimulations.github.io/skyconnections/?passageiros)" };
 async function getJ(url, opt = {}) {
   const ac = new AbortController(), to = setTimeout(() => ac.abort(), 25000);
   try {

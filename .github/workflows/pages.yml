@@ -50,12 +50,12 @@ jobs:
       - name: Baixar ciclones tropicais ativos (GDACS)
         continue-on-error: true   # sem o arquivo o site só não mostra os ciclones
         timeout-minutes: 7         # o script tem prazo de 5 min; GDACS lento não segura a publicação
-        run: node scripts/ciclones.mjs _site/ciclones.json https://lopesimulations.github.io/cargoconnections/ciclones.json
+        run: node scripts/ciclones.mjs _site/ciclones.json https://lopesimulations.github.io/skyconnections/ciclones.json
 
       - name: Manter os últimos ciclones publicados
         if: hashFiles('_site/ciclones.json') == ''
         continue-on-error: true
-        run: curl -fsS -o _site/ciclones.json https://lopesimulations.github.io/cargoconnections/ciclones.json || rm -f _site/ciclones.json
+        run: curl -fsS -o _site/ciclones.json https://lopesimulations.github.io/skyconnections/ciclones.json || rm -f _site/ciclones.json
 
       - uses: actions/configure-pages@v5
 

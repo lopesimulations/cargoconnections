@@ -4,7 +4,7 @@
 import fs from "node:fs";
 
 const [out, ...HUBS] = process.argv.slice(2);
-const UA = { "User-Agent": "cargoconnections-pax/0.1 (https://lopesimulations.github.io/cargoconnections/; marinhomatheus289@gmail.com)" };
+const UA = { "User-Agent": "cargoconnections-pax/0.1 (https://lopesimulations.github.io/skyconnections/; marinhomatheus289@gmail.com)" };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const getJ = async (url, opt = {}) => { for (let i = 0; ; i++) { try { const r = await fetch(url, { ...opt, headers: { ...UA, ...(opt.headers || {}) }, signal: AbortSignal.timeout(60000) }); if (r.status === 429) throw new Error("429"); if (!r.ok) throw new Error(r.status); return await r.json(); } catch (e) { if (i >= 3) throw e; await sleep(3000 * (i + 1)); } } };
 const W = "https://en.wikipedia.org/w/api.php?format=json&formatversion=2&";

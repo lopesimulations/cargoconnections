@@ -39,7 +39,7 @@ for (const [k, v] of Object.entries(D)) {
   }
 }
 
-const UA = { "user-agent": "cargoconnections-verificacao (+https://lopesimulations.github.io/cargoconnections/)" };
+const UA = { "user-agent": "cargoconnections-verificacao (+https://lopesimulations.github.io/skyconnections/)" };
 async function getJ(url, opt = {}) {
   const ac = new AbortController(), to = setTimeout(() => ac.abort(), 25000);
   try {

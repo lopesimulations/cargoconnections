@@ -22,7 +22,7 @@ const HUBS = {
 const ap = {};
 for (const [k, v] of Object.entries(J.aeroportos)) if (v.lat != null && v.lon != null) ap[k] = { lat: v.lat, lon: v.lon, n: v.n };
 // a mesma companhia aparece com títulos diferentes (redirecionamentos da Wikipedia): usa o título final do artigo
-const UA = { "User-Agent": "cargoconnections-pax/0.1 (https://lopesimulations.github.io/cargoconnections/)" };
+const UA = { "User-Agent": "cargoconnections-pax/0.1 (https://lopesimulations.github.io/skyconnections/)" };
 const W = "https://en.wikipedia.org/w/api.php?format=json&formatversion=2&";
 const nomes = [...new Set(J.rotas.map(r => r.op))], canon = {};
 for (let i = 0; i < nomes.length; i += 50) {
