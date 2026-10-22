@@ -259,7 +259,7 @@ td.code{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums
 .tablebox .thumb{border:1px solid rgba(127,233,255,.25);border-radius:2px;filter:saturate(.75) brightness(.9)}
 .tablebox .tsil svg{color:#5f8fa6}
 .tablebox .empty{color:var(--muted);font-family:var(--hb);letter-spacing:.04em}
-.tablebox .more{display:block;margin:12px auto 16px;position:relative;z-index:1}
+.tablebox .more{display:block;margin:12px auto 16px;position:relative;z-index:1}.tablebox .more[hidden]{display:none}
 .selbar{background:linear-gradient(90deg,rgba(127,233,255,.13),#06121b 70%);border:1px solid rgba(127,233,255,.4);border-radius:3px;font-family:var(--hb);color:var(--fg)}
 .selbar b{color:#fff}.selbar .k{font-family:var(--hx)}
 .selbar .slac{background:#02080d;border-color:rgba(127,233,255,.45)}
@@ -321,8 +321,37 @@ button.tocta{border:0;cursor:pointer}
 .credback{justify-self:start}
 .credpage h2{font-family:var(--display);font-weight:400;font-size:clamp(20px,3vw,28px);margin:0}
 .credpage .legend{gap:12px;font-size:14px;line-height:1.6}
+
+/* ---------- dois modos: Carga e Passageiros ---------- */
+.modes{display:flex;gap:2px;padding:2px;border:1px solid var(--m-line);border-radius:6px;background:rgba(3,9,20,.7);pointer-events:auto}
+.modes a{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;color:var(--muted);padding:3px 9px;border-radius:4px}
+.modes a[aria-current="page"]{background:#7fe9ff;color:#03090e}
+.modes a:hover,.modes a:focus-visible{color:#fff}.modes a[aria-current="page"]:hover{color:#03090e}
+.entry{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px;background:radial-gradient(70% 60% at 50% 40%,rgba(7,20,52,.86),rgba(2,5,15,.96))}
+.entry[hidden]{display:none}
+.entry-box{max-width:760px;width:100%;display:grid;gap:18px;text-align:center}
+.entry-box h1{font-family:var(--display);font-weight:400;font-size:clamp(28px,5vw,44px);margin:0}
+.entry-sub{margin:0;color:#7fe9ff;font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:12px}
+.entry-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.entry-opt{display:grid;gap:8px;padding:26px 22px;border:1px solid rgba(127,233,255,.3);border-radius:10px;background:rgba(3,9,20,.75);color:#e4ecf8;text-decoration:none;text-align:left;transition:border-color .15s,background .15s}
+.entry-opt b{font-family:var(--display);font-weight:400;font-size:24px;color:#fff}
+.entry-opt span{color:var(--muted);font-size:14px}
+.entry-opt:hover,.entry-opt:focus-visible{border-color:#f0954a;background:rgba(240,149,74,.08);outline:none}
+.entry-note{margin:0;color:var(--muted);font-size:12px}
+body.pax .tablebox th:nth-child(6),body.pax .tablebox td:nth-child(6){display:none}/* passageiros: a fonte não traz a aeronave */
 </style>
 
+<div id="entry" class="entry" hidden role="dialog" aria-modal="true" aria-labelledby="entry-h">
+  <div class="entry-box">
+    <h1 id="entry-h">Cargo Connections</h1>
+    <p class="entry-sub" data-t>Escolha a versão do site</p>
+    <div class="entry-opts">
+      <a class="entry-opt" href="?carga" data-m="carga"><b data-t>Carga</b><span data-t>Rotas de aviões cargueiros dos principais hubs do mundo</span></a>
+      <a class="entry-opt" href="?passageiros" data-m="pax"><b data-t>Passageiros</b><span data-t>Rotas de passageiros dos principais hubs do mundo</span></a>
+    </div>
+    <p class="entry-note" data-t>Dá para trocar a qualquer momento pelo botão no topo do site.</p>
+  </div>
+</div>
 <section class="hero" aria-label="Cargo Connections">
   <div id="map">
       <span class="brk a"></span><span class="brk b"></span><span class="brk c"></span><span class="brk d"></span>
@@ -343,6 +372,7 @@ button.tocta{border:0;cursor:pointer}
     <p class="lede" data-t>Seu melhor seletor de rotas</p>
   </header>
   <div class="hero-side">
+    <nav class="modes" aria-label="Versão do site" data-ta><a href="?carga" data-m="carga" data-t>Carga</a><a href="?passageiros" data-m="pax" data-t>Passageiros</a></nav>
     <nav class="langs" aria-label="Idioma" data-ta><button type="button" data-lang="pt" lang="pt" title="Português">PT</button><button type="button" data-lang="en" lang="en" title="English">EN</button><button type="button" data-lang="es" lang="es" title="Español">ES</button><button type="button" data-lang="fr" lang="fr" title="Français">FR</button><button type="button" data-lang="de" lang="de" title="Deutsch">DE</button></nav>
     <div class="legend-hud" aria-hidden="true"><span style="color:#3df2b6"><span id="lg-out" data-t>Saída do hub</span> <i style="background:#3df2b6"></i></span><span style="color:#56b8ff"><span id="lg-in" data-t>Chegada ao hub</span> <i style="background:#56b8ff"></i></span><span style="color:#b48cff"><span data-t>Malha oficial</span> <i style="background:#b48cff"></i></span><span style="color:#7fe9ff">Hub <i style="background:#e8fdff;width:5px;height:5px;border-radius:50%;box-shadow:0 0 0 2px #050d14,0 0 0 3px #7fe9ff,0 0 8px #7fe9ff"></i></span></div>
   </div>
@@ -420,7 +450,7 @@ window.claude={use:async n=>n==="db"?{collection:()=>({onSnapshot:(next)=>{setTi
 <script src="lib/d3.min.js"></script>
 <script src="lib/topojson-client.min.js"></script>
 <script>
-let LIMIT=Infinity;/* tabela mostra todas as rotas */const SILC={};const PHKEY={};
+let LIMIT=Infinity;/* tabela mostra todas as rotas; em passageiros vira LIM0 ao carregar */const SILC={};const PHKEY={};
 const AP={"---":"não informado"};
 let R=[];
 const C={};
@@ -537,7 +567,7 @@ function renderCards(){
 const CROSS=[[1,0],[-1,0],[0,1],[0,-1]];
 // aeroporto em foco (clique num aeroporto que não é hub): mostra idas e voltas dele, do ponto de vista dele
 let FOC_AP="";
-const selAp=()=>$("hub").value||FOC_AP||$("org").value||$("dst").value;
+const selAp=()=>$("hub").value||FOC_AP||apMain($("org").value)||apMain($("dst").value);
 // país em foco (clique num país do globo): G.cf guarda o id do país; ctryOf diz em que país fica cada aeroporto
 const cfObj=()=>G.cf&&G.countries?G.countries.find(q=>q.f.id===G.cf)||null:null;
 let CTRY={},CTRYsrc=null;
@@ -618,11 +648,11 @@ function initMap(){
       if(hit){untip();selectRoute(SEL===hit[1]?null:hit[1],{fly:SEL!==hit[1]});return;}}const a=pickPt(e);
     if(a&&SEL)return;/* com uma rota selecionada, outras escolhas ficam travadas */
     if(!a){hoverAt(e);if(MAP.hover){untip();if(SEL&&MAP.hover.id===SEL){selectRoute(null,{fly:false});return;}selectRoute(MAP.hover.id,{fly:true});/* fica no mapa, sem rolar até a tabela */}else if(SEL&&MAP.mode==="globe"&&gHoverRoute(...local(e),true)){return;/* clique em outra rota: travado */}else if(SEL){selectRoute(null,{fly:false});}
-      else if(MAP.mode==="globe"&&G.hc&&G.hc.f.id!==G.cf){G.cf=G.hc.f.id;$("hub").value="";$("org").value="";$("dst").value="";FOC_AP="";$("q").value="";LIMIT=Infinity;render();gAnimTo(G.hc.ct[0],G.hc.ct[1],G.k);}
-      else if(selAp()||G.cf){$("hub").value="";$("org").value="";$("dst").value="";FOC_AP="";G.cf=null;LIMIT=Infinity;render();}return;}
+      else if(MAP.mode==="globe"&&G.hc&&G.hc.f.id!==G.cf){G.cf=G.hc.f.id;$("hub").value="";$("org").value="";$("dst").value="";FOC_AP="";$("q").value="";LIMIT=LIM0;render();gAnimTo(G.hc.ct[0],G.hc.ct[1],G.k);}
+      else if(selAp()||G.cf){$("hub").value="";$("org").value="";$("dst").value="";FOC_AP="";G.cf=null;LIMIT=LIM0;render();}return;}
     untip();const d=a;SEL=null;
-    if($("hub").value===d.c||FOC_AP===d.c){if($("hub").value===d.c)$("hub").value="";if(FOC_AP===d.c)FOC_AP="";LIMIT=Infinity;render();return;}
-    LIMIT=Infinity;if(HUBS.includes(d.c)&&R.some(r=>touches(r,d.c))){$("reg").value="";fillHubs();$("hub").value="";$("org").value="";$("dst").value="";FOC_AP="";$("hub").value=d.c;$("q").value="";}else{$("hub").value="";$("org").value="";$("dst").value="";FOC_AP="";$("q").value="";FOC_AP=d.c;}render();zoomToAp(d.c);});
+    if($("hub").value===d.c||FOC_AP===d.c){if($("hub").value===d.c)$("hub").value="";if(FOC_AP===d.c)FOC_AP="";LIMIT=LIM0;render();return;}
+    LIMIT=LIM0;if(HUBS.includes(d.c)&&R.some(r=>touches(r,d.c))){$("reg").value="";fillHubs();$("hub").value="";$("org").value="";$("dst").value="";FOC_AP="";$("hub").value=d.c;$("q").value="";}else{$("hub").value="";$("org").value="";$("dst").value="";FOC_AP="";$("q").value="";FOC_AP=d.c;}render();zoomToAp(d.c);});
   $("mapreset").addEventListener("click",()=>{if(MAP.mode==="globe"){gAnimTo(G.L,12,1,700);G.lastInt=performance.now();}else d3.select(cv).transition().duration(600).call(zoom.transform,d3.zoomIdentity);});
 }
 // conversões: lógico (0..1000) -> tela (px CSS)
@@ -1224,10 +1254,10 @@ function wxBar(){cyPanel();const el=$("wxbar");if(!el)return;if(!WX.on){el.hidde
     +`<div class="wxleg"><span style="--c:#4ade80">VFR</span><span style="--c:#60a5fa">MVFR</span><span style="--c:#f87171">IFR</span><span style="--c:#e879f9">LIFR</span> ${$t("categorias de voo pelo teto e visibilidade")}</div>`;
   const dt=el.querySelector(".wxworst:not(.noaa):not(.wxd)");if(dt)dt.addEventListener("toggle",()=>{WX.wopen=dt.open;});
   const dd=el.querySelector(".wxd");if(dd)dd.addEventListener("toggle",()=>{WX.dopen=dd.open;});
-  el.querySelectorAll(".wxdest tr[data-d]").forEach(tr=>{const go=()=>{const d=tr.dataset.d;$("hub").value="";$("org").value="";$("dst").value="";FOC_AP="";$("q").value="";FOC_AP=d;LIMIT=Infinity;render();};tr.addEventListener("click",go);tr.addEventListener("keydown",e=>{if(e.key==="Enter")go();});});
+  el.querySelectorAll(".wxdest tr[data-d]").forEach(tr=>{const go=()=>{const d=tr.dataset.d;$("hub").value="";$("org").value="";$("dst").value="";FOC_AP="";$("q").value="";FOC_AP=d;LIMIT=LIM0;render();};tr.addEventListener("click",go);tr.addEventListener("keydown",e=>{if(e.key==="Enter")go();});});
   const dn=el.querySelector(".noaa");if(dn)dn.addEventListener("toggle",()=>{NO.open=dn.open;});
-  el.querySelectorAll(".wxtab tr[data-h]").forEach(tr=>{const go=()=>{const h=tr.dataset.h;$("reg").value="";if(typeof fillHubs==="function")fillHubs();$("org").value="";$("dst").value="";FOC_AP="";$("hub").value=h;LIMIT=Infinity;render();};tr.addEventListener("click",go);tr.addEventListener("keydown",e=>{if(e.key==="Enter")go();});});
-  el.querySelectorAll(".wxc").forEach(b=>b.addEventListener("click",()=>{const h=b.dataset.h;$("reg").value="";if(typeof fillHubs==="function")fillHubs();$("org").value="";$("dst").value="";FOC_AP="";$("hub").value=h;LIMIT=Infinity;render();}));}
+  el.querySelectorAll(".wxtab tr[data-h]").forEach(tr=>{const go=()=>{const h=tr.dataset.h;$("reg").value="";if(typeof fillHubs==="function")fillHubs();$("org").value="";$("dst").value="";FOC_AP="";$("hub").value=h;LIMIT=LIM0;render();};tr.addEventListener("click",go);tr.addEventListener("keydown",e=>{if(e.key==="Enter")go();});});
+  el.querySelectorAll(".wxc").forEach(b=>b.addEventListener("click",()=>{const h=b.dataset.h;$("reg").value="";if(typeof fillHubs==="function")fillHubs();$("org").value="";$("dst").value="";FOC_AP="";$("hub").value=h;LIMIT=LIM0;render();}));}
 
 // ---------- Globo 3D (projeção ortográfica, rotação livre) ----------
 const D2R=Math.PI/180;
@@ -1280,7 +1310,7 @@ const legKey=(a,b)=>a<b?a+"-"+b:b+"-"+a;
 function routeLegs(r){const L=[r.o,...(r.st||[]),r.d],k=[];for(let i=1;i<L.length;i++)k.push(legKey(L[i-1],L[i]));return k;}
 // fan: {legs:Set, d:ângulo} afasta a rota para o lado nos trechos compartilhados (leque ao selecionar)
 function gRoute(r,fan){ // amostras 3D do arco (grande círculo elevado acima da superfície; cada trecho tem o seu arco)
-  const P=pathPts(r,40),N=P.length-1,Ls=[r.o,...(r.st||[]),r.d];
+  const P=pathPts(r,PAX?16:40),N=P.length-1,Ls=[r.o,...(r.st||[]),r.d];
   const v=new Float32Array((N+1)*3),nrm=[];
   for(let i=0;i<=N;i++){const [q,f,a0,j]=P[i],hm=.015+.11*Math.min(1,a0/2.2),a=1+hm*Math.sin(Math.PI*f);let u=vec(q[0],q[1]);
     if(fan&&fan.d&&fan.legs.has(legKey(Ls[j],Ls[j+1]))){
@@ -1492,7 +1522,7 @@ function drawMap(list){
 }
 let SEL=null;
 function selectRoute(key,{fly=true,scrollTo=null}={}){
-  SEL=key;LIMIT=Infinity;render();
+  SEL=key;LIMIT=LIM0;render();
   if(key&&fly&&MAP)flyTo(key);
   if(scrollTo==="table"){const el=document.querySelector(".selbar");if(el)el.scrollIntoView({behavior:"smooth",block:"start"});}
   if(scrollTo==="map"){$("map").scrollIntoView({behavior:"smooth",block:"center"});}
@@ -1513,13 +1543,14 @@ function fillOps(list){const el=$("op"),cur=el.value,cnt=new Map();for(const r o
   const arr=[...cnt.entries()].sort((x,y)=>x[0].localeCompare(y[0],LOC)),sig=arr.map(x=>x.join(":")).join(",");
   if(el._sig!==sig){el._sig=sig;el.innerHTML='<option value="">'+$t("Todos")+'</option>'+arr.map(([n,c])=>`<option value="${esc(n)}">${esc(n)} · ${c}</option>`).join("");}
   el.value=cur;return el.value;}
-function fillSide(id,list,side,ex,only){const el=$(id),cur=el.value,cnt=new Map(),add=c=>{if(c&&c!=="---"&&c!==ex&&(!only||only(c)))cnt.set(c,(cnt.get(c)||0)+1);};
+function fillSide(id,list,side,ex,only){const el=$(id),cur=el.value,cnt=new Map(),exS=apSet(ex),add=c=>{if(c&&c!=="---"&&!exS.has(c)&&(!only||only(c)))cnt.set(c,(cnt.get(c)||0)+1);};
   for(const r of list){add(side?r[2]:r[1]);if(r[0]==="Malha"&&r[1]!==r[2])add(side?r[1]:r[2]);}
   const arr=[...cnt.entries()].sort((x,y)=>y[1]-x[1]||(AP[x[0]]||x[0]).localeCompare(AP[y[0]]||y[0],LOC));
   const top=arr.slice(0,25),rest=arr.slice(25).sort((x,y)=>(AP[x[0]]||x[0]).localeCompare(AP[y[0]]||y[0],LOC));
+  const cities=Object.entries(CIDADES).map(([k,[nm,a]])=>[k,nm,a.filter(x=>cnt.has(x))]).filter(x=>x[2].length>1||(x[2].length&&cur==="@"+x[0])).map(([k,nm,a])=>[k,nm,a,a.reduce((t,x)=>t+cnt.get(x),0)]).sort((x,y)=>y[3]-x[3]);
   const o=([c,n])=>`<option value="${c}">${esc(AP[c]||c)} (${c}) · ${n}</option>`;
-  const sig=arr.map(x=>x.join(":")).join(",");
-  if(el._sig!==sig){el._sig=sig;el.innerHTML='<option value="">'+$t(side?"Todos":"Todas")+'</option>'+(top.length?`<optgroup label="${$t("Mais frequentes")}">${top.map(o).join("")}</optgroup>`:"")+(rest.length?`<optgroup label="${$t(side?"Demais destinos (A–Z)":"Demais partidas (A–Z)")}">${rest.map(o).join("")}</optgroup>`:"");}
+  const sig=arr.map(x=>x.join(":")).join(",")+"|"+cities.map(x=>x[0]).join();
+  if(el._sig!==sig){el._sig=sig;el.innerHTML='<option value="">'+$t(side?"Todos":"Todas")+'</option>'+(cities.length?`<optgroup label="${$t("Cidades (todos os aeroportos)")}">${cities.map(([k,nm,a,n])=>`<option value="@${k}">${esc($t(nm))} (${a.join(" · ")}) · ${n}</option>`).join("")}</optgroup>`:"")+(top.length?`<optgroup label="${$t("Mais frequentes")}">${top.map(o).join("")}</optgroup>`:"")+(rest.length?`<optgroup label="${$t(side?"Demais destinos (A–Z)":"Demais partidas (A–Z)")}">${rest.map(o).join("")}</optgroup>`:"");}
   el.value=cur;return el.value;}
 function render(){
   const g=$("reg").value;
@@ -1537,14 +1568,14 @@ function render(){
   if(FOC_AP)list=list.filter(r=>r[1]===FOC_AP||r[2]===FOC_AP);
   {const ch=$("apchip");if(ch){ch.hidden=!FOC_AP;if(FOC_AP)ch.textContent=`${$t("Aeroporto")}: ${AP[FOC_AP]||FOC_AP} (${FOC_AP}) ✕`;}}
   // cada lista só oferece aeroportos compatíveis com o outro lado já escolhido
-  const byO=(L,v)=>L.filter(r=>r[1]===v||(r[0]==="Malha"&&r[2]===v)).map(r=>r[1]===v?r:flip(r)),byD=(L,v)=>L.filter(r=>r[2]===v||(r[0]==="Malha"&&r[1]===v)).map(r=>r[2]===v?r:flip(r));
+  const byO=(L,v)=>{const S=apSet(v);return L.filter(r=>S.has(r[1])||(r[0]==="Malha"&&S.has(r[2]))).map(r=>S.has(r[1])?r:flip(r));},byD=(L,v)=>{const S=apSet(v);return L.filter(r=>S.has(r[2])||(r[0]==="Malha"&&S.has(r[1]))).map(r=>S.has(r[2])?r:flip(r));};
   // Partida, Destino e Operador: cada lista mostra só o que combina com as outras duas escolhas
   const dC=$("dst").value,fP=L=>o?L.filter(r=>r[4]===o):L;
   const ov=fillSide("org",dC?byD(fP(list),dC):fP(list),0,dC,rgv?inR:null),dv=fillSide("dst",ov?byO(fP(list),ov):fP(list),1,ov);
   if(ov)list=byO(list,ov);if(dv)list=byD(list,dv);
   const pv=fillOps(list);if(pv)list=list.filter(r=>r[4]===pv);
   // sem hub, o aeroporto em foco (ou a partida) vira o ponto de vista: o que sai dele é saída; só destino: tudo é chegada
-  const foc=!h?(FOC_AP||ov):"",dfoc=!h&&!foc?dv:"";if(MAP){MAP.foc=foc||dfoc;MAP.apOn=!!(h||FOC_AP||ov||dv||cf);}
+  const foc=!h?(FOC_AP||apMain(ov)):"",dfoc=!h&&!foc?apMain(dv):"";if(MAP){MAP.foc=foc||dfoc;MAP.apOn=!!(h||FOC_AP||ov||dv||cf);}
   if(dfoc)list=list.map(r=>{if(r[0]==="Malha")return r;const n=r.slice();n[0]="Chegada";return n;});
   // país em foco (sem hub nem destino): o que sai do país é saída, o que chega é chegada; malha começa no país
   const cfv=cf&&!h&&!foc&&!dfoc,rgs=rgv&&!foc&&!dfoc;
@@ -1583,14 +1614,36 @@ function render(){
   if(LOADED)try{localStorage.setItem("f",JSON.stringify({q:$("q").value,h,d,o,s,a,g,t:$("dst").value,p:$("org").value}))}catch(e){}
 }
 
-["q","hub","org","dst","dir","op","ac","sort"].forEach(id=>$(id).addEventListener("input",()=>{LIMIT=Infinity;render();}));
+["q","hub","org","dst","dir","op","ac","sort"].forEach(id=>$(id).addEventListener("input",()=>{LIMIT=LIM0;render();}));
 $("more").addEventListener("click",()=>{LIMIT+=250;render();});
 $("reg").addEventListener("input",()=>{fillHubs();render();});
-$("cfchip").addEventListener("click",()=>{G.cf=null;LIMIT=Infinity;render();kick();});
-$("apchip").addEventListener("click",()=>{FOC_AP="";LIMIT=Infinity;render();kick();});
+$("cfchip").addEventListener("click",()=>{G.cf=null;LIMIT=LIM0;render();kick();});
+$("apchip").addEventListener("click",()=>{FOC_AP="";LIMIT=LIM0;render();kick();});
 $("reset").addEventListener("click",()=>{["q","reg","org","dst","dir","op","ac","sort"].forEach(id=>$(id).value="");FOC_AP="";fillHubs();$("hub").value="";render()});
 // ---------- Dados: base compartilhada (atualizada uma vez por dia) ----------
 let LASTSIG="",LOADED=false,META=null,LOADMSG="Carregando as rotas da base de dados…",SAVEDF=null;
+// ---------- modo do site: Carga (base embutida) ou Passageiros (pax.json) ----------
+const MODE=(()=>{const q=new URLSearchParams(location.search);if(q.has("passageiros"))return"pax";if(q.has("carga"))return"carga";try{return localStorage.getItem("modo")==="pax"?"pax":(localStorage.getItem("modo")?"carga":"");}catch(e){return"";}})();
+const PAX=MODE==="pax",LIM0=PAX?250:Infinity;/* passageiros: tabela em páginas de 250 (são dezenas de milhares de rotas) */
+{const pick=MODE||"carga";try{localStorage.setItem("modo",pick);}catch(e){}document.body.classList.toggle("pax",PAX);
+  document.querySelectorAll(".modes a,.entry-opt").forEach(a=>{if(a.closest(".modes")&&a.dataset.m===(PAX?"pax":"carga"))a.setAttribute("aria-current","page");
+    a.addEventListener("click",e=>{const m=a.dataset.m;try{localStorage.setItem("modo",m);}catch(x){}if((m==="pax")===PAX){e.preventDefault();$("entry").hidden=true;history.replaceState(null,"",(m==="pax"?"?passageiros":"?carga")+location.hash);}});});
+  if(!MODE){try{localStorage.removeItem("modo");}catch(e){}$("entry").hidden=false;}
+  if(PAX){for(const [sel,k] of [[".hero-top .tagline","Rotas de passageiros dos principais hubs do mundo"],[".hero-top .eyebrow","Américas · Europa · África · Oriente Médio · Ásia · Oceania · voos de passageiros"]]){const el=document.querySelector(sel);if(el){el.dataset.i18n=k;el.textContent=$t(k);}}
+    document.querySelector(".hero-top h1").textContent="Pax Connections";document.querySelector(".hero").setAttribute("aria-label","Pax Connections");document.title="Pax Connections";}}
+// cidades com mais de um aeroporto (código de cidade usado pelas companhias)
+const CIDADES={SAO:["São Paulo",["GRU","CGH","VCP"]],RIO:["Rio de Janeiro",["GIG","SDU"]],BHZ:["Belo Horizonte",["CNF","PLU"]],BUE:["Buenos Aires",["EZE","AEP"]],
+  NYC:["Nova York",["JFK","LGA","EWR"]],WAS:["Washington",["IAD","DCA","BWI"]],CHI:["Chicago",["ORD","MDW"]],HOU:["Houston",["IAH","HOU"]],QDF:["Dallas",["DFW","DAL"]],
+  QLA:["Los Angeles",["LAX","BUR","LGB","SNA","ONT"]],QSF:["São Francisco (baía)",["SFO","OAK","SJC"]],QMI:["Miami / Fort Lauderdale",["MIA","FLL"]],YTO:["Toronto",["YYZ","YTZ"]],
+  MEX:["Cidade do México",["MEX","NLU","TLC"]],LON:["Londres",["LHR","LGW","STN","LTN","LCY","SEN"]],PAR:["Paris",["CDG","ORY","BVA"]],MIL:["Milão",["MXP","LIN","BGY"]],
+  ROM:["Roma",["FCO","CIA"]],STO:["Estocolmo",["ARN","BMA","NYO"]],OSL:["Oslo",["OSL","TRF"]],BUH:["Bucareste",["OTP","BBU"]],REK:["Reykjavík",["KEF","RKV"]],
+  MOW:["Moscou",["SVO","DME","VKO","ZIA"]],IST:["Istambul",["IST","SAW"]],CAI:["Cairo",["CAI","SPX"]],JNB:["Joanesburgo",["JNB","HLA"]],DXB:["Dubai",["DXB","DWC"]],
+  TYO:["Tóquio",["HND","NRT"]],OSA:["Osaka",["KIX","ITM","UKB"]],SEL:["Seul",["ICN","GMP"]],BJS:["Pequim",["PEK","PKX"]],SHA:["Xangai",["PVG","SHA"]],CTU:["Chengdu",["TFU","CTU"]],
+  TPE:["Taipei",["TPE","TSA"]],BKK:["Bangkok",["BKK","DMK"]],JKT:["Jacarta",["CGK","HLP"]],KUL:["Kuala Lumpur",["KUL","SZB"]],SYD:["Sydney",["SYD","WSI"]],MEL:["Melbourne",["MEL","AVV"]]};
+const isCity=v=>typeof v==="string"&&v[0]==="@";
+const cityAps=v=>isCity(v)&&CIDADES[v.slice(1)]?CIDADES[v.slice(1)][1]:null;
+const apSet=v=>{const c=cityAps(v);return c?new Set(c):new Set(v?[v]:[]);};
+const apMain=v=>{const c=cityAps(v);return c?(c.find(x=>C[x])||c[0]):v;};/* aeroporto principal da cidade (para centralizar o globo) */
 try{SAVEDF=JSON.parse(localStorage.getItem("f")||"null");}catch(e){}
 const fmtDia=iso=>{if(!iso)return"";const d=new Date(iso.length===10?iso+"T12:00:00":iso);return isNaN(d)?iso:d.toLocaleDateString(LOC,{day:"2-digit",month:"2-digit",year:"numeric"});};
 function applyData(docs){
@@ -1607,7 +1660,7 @@ function applyData(docs){
     if((x.o!=="---"&&!C[x.o])||(x.d!=="---"&&!C[x.d]))return;
     const st=Array.isArray(x.esc)?x.esc.filter(c=>C[c]):null;
     rows.push([x.s,x.o,x.d,String(x.v||"—"),String(x.op||""),String(x.ac||""),String(x.f||""),String(x.visto||""),st&&st.length?st:null,x.escq||""]);}));
-  R=rows;LOADED=true;buildOptions();verFetch();
+  R=rows;LOADED=true;buildOptions();if(!PAX)verFetch();/* a verificação noturna por ADS-B cobre só os cargueiros */
   if(WX.on)wxRefresh();// busca de novo o METAR, agora incluindo os destinos das rotas
   if(WX.on&&!NO.t&&!NO.busy)setTimeout(()=>noFetch(),0);
   if(SAVEDF){const s=SAVEDF;SAVEDF=null;$("reg").value=s.g||"";fillHubs();$("q").value=s.q||"";$("hub").value=s.h||"";$("dir").value=s.d||"";$("op").value=s.o||"";$("sort").value=s.s||"";$("ac").value=s.a||"";if(s.t){$("dst").innerHTML+=`<option value="${esc(s.t)}"></option>`;$("dst").value=s.t;$("dst")._sig="";}if(s.p){$("org").innerHTML+=`<option value="${esc(s.p)}"></option>`;$("org").value=s.p;$("org")._sig="";}}
@@ -1617,6 +1670,13 @@ function showLoadMsg(msg){LOADMSG=msg;LOADED=false;render();}
 (async()=>{
   const db=window.claude?await window.claude.use("db"):null;
   if(!db){showLoadMsg("A base de rotas só abre para quem está conectado ao claude.ai com acesso a esta página. Entre na sua conta e recarregue.");return;}
+  if(PAX){/* passageiros: pax.json (rotas da malha das companhias, Wikipedia) + clima da base embutida */
+    try{const r=await fetch("pax.json",{cache:"no-cache"});if(!r.ok)throw 0;const P=await r.json();
+      const docs={clima:__D.clima,aovivo:null,meta:{hubs:P.hubs},aeroportos:{lista:Object.assign({},__D.aeroportos.lista,P.aeroportos)},
+        "rotas-PAX":{rotas:P.rotas.map(([o,d,i,f])=>({s:"Malha",o,d,op:P.ops[i],ac:"",v:"—",f:f==="s"?"Wikipedia · sazonal":f?"Wikipedia · fretamento":"Wikipedia",visto:P.data}))}};
+      Object.assign(ICAO,P.icao||{});ICAO2=null;LIMIT=LIM0;applyData(docs);}
+    catch(e){showLoadMsg("Não foi possível carregar as rotas de passageiros agora. Recarregue a página para tentar de novo.");}
+    return;}
   db.collection("base").onSnapshot(qs=>{
     if(qs.empty){showLoadMsg("A base de dados ainda está vazia. As rotas aparecem aqui depois da primeira carga.");return;}
     const docs={};qs.docs.forEach(d=>{if(d.exists)docs[d.id]=d.data();});const sig=JSON.stringify(docs);if(sig===LASTSIG)return;LASTSIG=sig;applyData(docs);
