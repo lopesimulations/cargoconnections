@@ -362,7 +362,7 @@ button.tocta{border:0;cursor:pointer}
     <div class="f x"><label for="op" data-t>Operador</label><select id="op"></select></div>
     <div class="f x"><label for="ac" data-t>Aeronave</label><select id="ac"></select></div>
     <div class="f x"><label for="sort" data-t>Ordenar</label><select id="sort">
-      <option value="" data-t>Sentido e hub</option><option value="t-asc" data-t>Menor tempo de voo</option><option value="t-desc" data-t>Maior tempo de voo</option></select></div>
+      <option value="" data-t>Sentido e hub</option><option value="t-asc" data-t>Menor tempo de voo</option><option value="t-desc" data-t>Maior tempo de voo</option><option value="adsb" data-t>Mais vistas voando (ADS-B)</option></select></div>
     <button id="reset" class="x" type="button" data-t>Limpar filtros</button>
     <button id="morebtn" type="button" aria-expanded="false" data-t>Mais filtros</button>
     <button type="button" class="tocta" id="tocta" aria-controls="rotas" aria-expanded="false" data-t>Ver rotas na tabela ↓</button>
@@ -653,7 +653,7 @@ function hoverAt(e){
 }
 function tip(e,html){const t=$("tip"),b=$("map").getBoundingClientRect();t.innerHTML=html;t.hidden=false;let x=e.clientX-b.left+14,y=e.clientY-b.top+14;if(x>b.width-280)x=e.clientX-b.left-280;if(y>b.height-110)y=e.clientY-b.top-110;t.style.left=Math.max(4,x)+"px";t.style.top=Math.max(4,y)+"px";}
 function untip(){$("tip").hidden=true;}
-function rtTipHtml(p){return `<b>${esc(p.o)} → ${esc(p.d)}</b> <span class="d">${dirName(p.dir)}</span><br>${esc(AP[p.o]||p.o)} → ${esc(AP[p.d]||p.d)}<br><span class="d">${(m=>m==null?"—":fmt(m))(pathMins(p.o,p.d,p.st,p.sq))} · ${Math.round(pathKm(p.o,p.d,p.st)).toLocaleString(LOC)} km${escHtml(p.st,p.sq)?" · "+escHtml(p.st,p.sq):""}</span>${rtAcHtml(p)}${p.fl.length?`<br><span class="d">${$t("voos")} ${esc(p.fl.join(", ").slice(0,90))}</span>`:""}${rtLiveHtml(p)}`;}
+function rtTipHtml(p){const h=verPar(p.o,p.d);return `<b>${esc(p.o)} → ${esc(p.d)}</b> <span class="d">${dirName(p.dir)}</span><br>${esc(AP[p.o]||p.o)} → ${esc(AP[p.d]||p.d)}<br><span class="d">${(m=>m==null?"—":fmt(m))(pathMins(p.o,p.d,p.st,p.sq))} · ${Math.round(pathKm(p.o,p.d,p.st)).toLocaleString(LOC)} km${escHtml(p.st,p.sq)?" · "+escHtml(p.st,p.sq):""}</span>${rtAcHtml(p)}${p.fl.length?`<br><span class="d">${$t("voos")} ${esc(p.fl.join(", ").slice(0,90))}</span>`:""}${h.n?`<br><span class="adsb">${verTxt(h.n,h.u)}</span>`:""}${rtLiveHtml(p)}`;}
 // rota selecionada: o mesmo cartão do tooltip, fixo ao lado do meio da linha, acompanhando o globo
 function rtCard(){const el=$("rtcard");if(!el)return;const r=MAP&&MAP.sel?MAP.routes.find(x=>x.id===MAP.sel):null;
   if(!r){if(!el.hidden)el.hidden=true;return;}
@@ -1082,6 +1082,11 @@ function cyThreat(){const m=new Map(),aps=new Set(HUBS.concat([...wxDestHubs().k
   CY.thr=m;}
 // verificação noturna das rotas com ADS-B (scripts/rotas.mjs, meia-noite de Brasília)
 const VER={vistas:{},novas:{}};
+// histórico da verificação noturna: em quantos dias dos últimos 30 a rota foi vista voando (ADS-B)
+function verDias(v){if(!v)return 0;const lim=new Date(Date.now()-30*864e5).toISOString().slice(0,10);return(v.d||[v.u]).filter(x=>x>=lim).length;}
+function verPar(o,d){const pre=o+"|"+d+"|",dias=new Set();let u="";for(const k in VER.vistas)if(k.startsWith(pre)){const v=VER.vistas[k];for(const x of v.d||[v.u])dias.add(x);if(v.u>u)u=v.u;}
+  const lim=new Date(Date.now()-30*864e5).toISOString().slice(0,10);return{n:[...dias].filter(x=>x>=lim).length,u};}
+const verTxt=(n,u)=>$t(n===1?"✓ ADS-B: vista em 1 dia dos últimos 30 · última {d}":"✓ ADS-B: vista em {n} dias dos últimos 30 · última {d}",{n,d:fmtDia(u)});
 async function verFetch(){try{const r=await fetch(`verificacao.json?t=${Math.floor(Date.now()/3600000)}`,{cache:"no-store"});if(!r.ok)return;const j=await r.json();
   if(j&&j.vistas){VER.vistas=j.vistas;VER.novas=j.novas||{};VER.t=j.atualizado_em;render();}}catch(e){}}
 async function cyFetch(){try{const r=await fetch(`ciclones.json?t=${Math.floor(Date.now()/300000)}`,{cache:"no-store"});if(!r.ok)return;const j=await r.json();
@@ -1552,7 +1557,8 @@ function render(){
   if(d&&!h&&(FOC_AP||$("org").value||$("dst").value))list=list.filter(r=>r[0]===d);/* com destino em foco, o filtro Sentido segue o sentido dele */
   for(const [id,k,kf] of [["lg-out","Saída do hub","Saídas · {c}"],["lg-in","Chegada ao hub","Chegadas · {c}"]]){const el=$(id);if(!el)continue;const who=foc||dfoc||(cfv&&cq?cq.nm:"")||(rgs?$t(REGNAMES[g]||g):"");el.dataset.i18n=who?"":k;el.textContent=who?$t(kf,{c:who}):$t(k);}
   const T=r=>pathMins(r[1],r[2],r[8],r[9]);
-  if(s)list=[...list].sort((a,b)=>{const x=T(a),y=T(b);if(x==null)return 1;if(y==null)return -1;return s==="t-asc"?x-y:y-x;});
+  if(s==="adsb"){const A=r=>verDias(VER.vistas[r[1]+"|"+r[2]+"|"+r[4]]);list=[...list].sort((a,b)=>A(b)-A(a));}
+  else if(s)list=[...list].sort((a,b)=>{const x=T(a),y=T(b);if(x==null)return 1;if(y==null)return -1;return s==="t-asc"?x-y:y-x;});
   const tcell=r=>{const d=pathKm(r[1],r[2],r[8]);if(d==null)return '<span class="km">—</span>';const m=pathMins(r[1],r[2],r[8],r[9]),e=escHtml(r[8],r[9]);
     return `<span class="t">${m==null?"—":fmt(m)}</span><span class="km">${Math.round(d).toLocaleString(LOC)} km</span>${e?`<span class="esc${r[9]==="c"?"":" p"}">${e}</span>`:""}${m==null?"":`<span class="bar" style="width:${Math.max(6,Math.min(100,m/1080*100))}%"></span>`}`;};
   const keyOf=r=>r[0]+"|"+r[1]+"|"+r[2];
@@ -1561,7 +1567,7 @@ function render(){
   const ts=list.map(T).filter(x=>x!=null);
   const avg=ts.length?Math.round(ts.reduce((a,b)=>a+b,0)/ts.length):null;
   const shown=$("rotas").hidden?[]:view.slice(0,LIMIT);
-  $("rows").innerHTML=shown.map(r=>`<tr data-k="${esc(keyOf(r))}" class="${SEL===keyOf(r)?"sel":""}${r[1]==="---"||r[2]==="---"?" nosel":""}" title="${r[1]==="---"||r[2]==="---"?"":$t("Clique para ver esta rota no mapa")}"><td>${pill(r[0])}</td><td class="route">${cell(r[1])}</td><td class="route">${cell(r[2])}</td><td class="code">${esc(r[3])}</td><td class="op">${esc(r[4])}</td><td><span class="acc">${PHOTO[fam(r)]?`<span class="thumb tph" style="background-image:var(--ph-${PHKEY[fam(r)]})" role="img" aria-label="${esc(fam(r))}"></span>`:`<span class="thumb tsil">${SILC[fam(r)]||(SILC[fam(r)]=sil(fam(r)))}</span>`}<span class="acn">${esc(r[5])}</span></span></td><td class="time">${tcell(r)}</td><td class="src">${sbHtml(r,"sbl")}${esc(r[6])}${r[7]?`<br><span class="km">${$t("visto em {d}",{d:fmtDia(r[7])})}</span>`:""}${(v=>v?`<br><span class="adsb" title="${esc($t("indicativo {c}",{c:v.cs})+(v.via&&v.via.length?" · via "+v.via.join(" · "):""))}">✓ ${$t("ADS-B em {d}",{d:fmtDia(v.u)})}</span>`:"")(VER.vistas[r[1]+"|"+r[2]+"|"+r[4]])}</td></tr>`).join("");
+  $("rows").innerHTML=shown.map(r=>`<tr data-k="${esc(keyOf(r))}" class="${SEL===keyOf(r)?"sel":""}${r[1]==="---"||r[2]==="---"?" nosel":""}" title="${r[1]==="---"||r[2]==="---"?"":$t("Clique para ver esta rota no mapa")}"><td>${pill(r[0])}</td><td class="route">${cell(r[1])}</td><td class="route">${cell(r[2])}</td><td class="code">${esc(r[3])}</td><td class="op">${esc(r[4])}</td><td><span class="acc">${PHOTO[fam(r)]?`<span class="thumb tph" style="background-image:var(--ph-${PHKEY[fam(r)]})" role="img" aria-label="${esc(fam(r))}"></span>`:`<span class="thumb tsil">${SILC[fam(r)]||(SILC[fam(r)]=sil(fam(r)))}</span>`}<span class="acn">${esc(r[5])}</span></span></td><td class="time">${tcell(r)}</td><td class="src">${sbHtml(r,"sbl")}${esc(r[6])}${r[7]?`<br><span class="km">${$t("visto em {d}",{d:fmtDia(r[7])})}</span>`:""}${(v=>v?`<br><span class="adsb" title="${esc($t("indicativo {c}",{c:v.cs})+(v.via&&v.via.length?" · via "+v.via.join(" · "):""))}">${verTxt(verDias(v),v.u)}</span>`:"")(VER.vistas[r[1]+"|"+r[2]+"|"+r[4]])}</td></tr>`).join("");
   $("more").hidden=view.length<=LIMIT;$("more").textContent=$t("Mostrar mais {a} (de {b} restantes)",{a:Math.min(250,view.length-LIMIT),b:view.length-LIMIT});
   $("empty").textContent=$t(LOADED?"Nenhuma rota com esses filtros. Limpe a busca ou escolha outro hub ou destino.":LOADMSG);
   $("empty").hidden=LOADED&&view.length>0;
