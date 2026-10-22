@@ -1083,7 +1083,7 @@ function wxSetGrid(cc,pr,code,t){const la=[],lo=[];for(let y=-80;y<=80;y+=10)for
   WX.grid=la.map((y,i)=>({v:vec(lo[i],y),cc:cc[i],pr:pr[i],code:code[i]}));WX.gt=t;}
 function wxLoadGridCache(){try{const j=JSON.parse(localStorage.getItem("wxg")||"null");if(j&&Date.now()-j.t<3*3600e3&&j.cc&&j.cc.length===612){wxSetGrid(Float32Array.from(j.cc),Float32Array.from(j.pr),Int16Array.from(j.code),j.t);return true;}}catch(e){}return false;}
 // metar.json gerado pelo GitHub Actions (scripts/metar.mjs): o aviationweather.gov não libera CORS para o navegador
-async function wxFetchFile(){try{const r=await fetch(`metar.json?t=${Math.floor(Date.now()/300000)}`,{cache:"no-store"});if(!r.ok)return false;const j=await r.json();if(!j||!j.metar)return false;
+async function wxFetchFile(){try{const r=await fetch(`${PAX?"metar-pax.json":"metar.json"}?t=${Math.floor(Date.now()/300000)}`,{cache:"no-store"});if(!r.ok)return false;const j=await r.json();if(!j||!j.metar)return false;
     const out={};for(const k in j.metar)out[k]=parseMetar(String(j.metar[k]));if(!Object.keys(out).length)return false;
     WX.metar=out;WX.src=j.fonte||"aviationweather.gov";WX.t=Date.parse(j.atualizado_em)||Date.now();WX.live=true;return true;}catch(e){return false;}}
 async function wxRefresh(){if(WX.on){await cyFetch();const ok=await wxFetchFile()||await wxFetchMetar();if(!ok&&WX.snap&&!WX.live)wxFromSnap();}

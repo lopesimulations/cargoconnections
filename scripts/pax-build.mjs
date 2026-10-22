@@ -5,9 +5,9 @@ import fs from "node:fs";
 
 const [inp, out] = process.argv.slice(2);
 const J = JSON.parse(fs.readFileSync(inp, "utf8"));
-// 10 principais hubs de passageiros por região (11 na América do Sul, com Manaus)
+// 10 principais hubs de passageiros por região (+ Manaus na América do Sul e Honolulu na América do Norte)
 const HUBS = {
-  NAM: ["ATL", "DFW", "DEN", "ORD", "LAX", "JFK", "LAS", "MCO", "CLT", "MIA"],
+  NAM: ["ATL", "DFW", "DEN", "ORD", "LAX", "JFK", "LAS", "MCO", "CLT", "MIA", "HNL"],
   CAM: ["MEX", "CUN", "GDL", "TIJ", "MTY", "PTY", "SJO", "SDQ", "PUJ", "SJU"],
   SAM: ["BOG", "GRU", "SCL", "LIM", "CGH", "BSB", "AEP", "GIG", "MDE", "CNF", "MAO"],
   EUR: ["LHR", "IST", "CDG", "AMS", "MAD", "FRA", "BCN", "FCO", "SAW", "MUC"],

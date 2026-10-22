@@ -39,6 +39,10 @@ jobs:
         continue-on-error: true   # sem METAR o site ainda publica e usa o clima salvo na base
         run: node scripts/metar.mjs index.html _site/metar.json
 
+      - name: Baixar METAR dos hubs e destinos de passageiros
+        continue-on-error: true   # arquivo à parte: não interfere no METAR da versão de carga
+        run: node scripts/metar.mjs pax.json _site/metar-pax.json
+
       - name: Baixar ciclones tropicais ativos (GDACS)
         continue-on-error: true   # sem o arquivo o site só não mostra os ciclones
         timeout-minutes: 7         # o script tem prazo de 5 min; GDACS lento não segura a publicação

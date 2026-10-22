@@ -1,14 +1,16 @@
 // Baixa o METAR de todos os aeroportos do site (hubs e destinos) e grava um metar.json.
 // O aviationweather.gov não libera CORS, então o navegador não consegue buscar direto;
 // este script roda no GitHub Actions e o site lê o arquivo gerado.
-// Uso: node scripts/metar.mjs <index.html> <saída.json>
+// Uso: node scripts/metar.mjs <index.html | pax.json> <saída.json>
 import { readFileSync, writeFileSync } from "node:fs";
 
 const [src = "index.html", out = "metar.json"] = process.argv.slice(2);
-const html = readFileSync(src, "utf8");
-const m = html.match(/const ICAO=(\{.*?\});/);
-if (!m) throw new Error("mapa ICAO não encontrado em " + src);
-const ids = [...new Set(Object.values(JSON.parse(m[1])))].filter(i => /^[A-Z0-9]{4}$/.test(i));
+const txt = readFileSync(src, "utf8");
+// index.html (carga): mapa ICAO embutido; pax.json (passageiros): campo "icao" com hubs e destinos
+let map;
+if (src.endsWith(".json")) map = JSON.parse(txt).icao;
+else { const m = txt.match(/const ICAO=(\{.*?\});/); if (!m) throw new Error("mapa ICAO não encontrado em " + src); map = JSON.parse(m[1]); }
+const ids = [...new Set(Object.values(map))].filter(i => /^[A-Z0-9]{4}$/.test(i));
 
 const metar = {};
 for (let i = 0; i < ids.length; i += 40) {
