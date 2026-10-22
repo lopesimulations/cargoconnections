@@ -1,0 +1,43 @@
+name: Verificar rotas de passageiros com ADS-B
+
+# Pax Connections: uma foto dos jatos de passageiros no ar a cada 6 horas (cobre os fusos de todo o mundo),
+# separada da verificação de carga. O resultado (verificacao-pax.json) fica no ramo "dados-pax", com um
+# commit só (substituído a cada execução, para o repositório não crescer), e entra no site na próxima publicação.
+on:
+  schedule:
+    - cron: "20 0,6,12,18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rotas-pax
+  cancel-in-progress: false
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Buscar a verificação anterior
+        run: git fetch --depth=1 origin dados-pax && git show FETCH_HEAD:verificacao-pax.json > anterior.json || echo "primeira verificação"
+
+      - name: Verificar as rotas de passageiros com ADS-B
+        run: node scripts/rotas-pax.mjs pax.json verificacao-pax.json anterior.json https://lopesimulations.github.io/cargoconnections/verificacao-pax.json
+
+      - name: Guardar no ramo dados-pax
+        run: |
+          mkdir /tmp/dados && cp verificacao-pax.json /tmp/dados/ && cd /tmp/dados
+          git init -q -b dados-pax
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add verificacao-pax.json
+          git commit -qm "verificação ADS-B das rotas de passageiros"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" dados-pax

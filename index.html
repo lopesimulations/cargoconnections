@@ -53,22 +53,22 @@ button{font:inherit;font-size:13px;color:var(--fg);background:transparent;border
 button:hover{border-color:var(--accent)}
 .tablebox{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px}
 table{border-collapse:collapse;width:100%;min-width:980px}
-td.time{white-space:nowrap;font-variant-numeric:tabular-nums}
+td.time{min-width:6em;font-variant-numeric:tabular-nums}
 .t{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--fg)}
 .km{display:block;font-family:var(--mono);font-size:12px;color:var(--muted)}
 .bar{display:block;height:3px;border-radius:2px;background:var(--accent);margin-top:4px;opacity:.75}
 th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
 th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;position:sticky;top:0;background:var(--surface)}
 tbody tr:hover{background:var(--bg)}
-td.code{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.code{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;max-width:7.5em}
 .ap{display:block;font-weight:500}
 .iata{font-family:var(--mono);font-size:12px;color:var(--muted)}
-.route{white-space:nowrap}
+.route{min-width:10.5em}
 .pill{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;padding:2px 8px;border-radius:999px;white-space:nowrap}
 .p-out{background:var(--out-soft);color:var(--out)}
 .p-in{background:var(--in-soft);color:var(--in)}
 .p-off{background:var(--off-soft);color:var(--off)}
-.src{font-size:12px;color:var(--muted);white-space:nowrap}
+.src{font-size:12px;color:var(--muted);min-width:9em}
 .note{font-size:12px;color:var(--muted)}
 .empty{padding:28px;text-align:center;color:var(--muted)}
 .fleet{display:grid;gap:10px}
@@ -88,7 +88,7 @@ td.code{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums
 .card .sp{font-family:var(--mono);font-size:12px;color:var(--muted)}
 .card a{font-size:12px;color:var(--accent);text-decoration:none}
 .card a:hover{text-decoration:underline}
-.acc{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.acc{display:flex;align-items:center;gap:8px}
 .acc .thumb{width:84px;height:56px;flex:0 0 auto;border-radius:4px;object-fit:cover;background:var(--bg)}
 .acc .tsil{display:grid;place-items:center;padding:0 6px}
 .acc .tsil svg{width:100%;height:auto;color:var(--muted)}
@@ -242,7 +242,7 @@ td.code{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums
 .tablebox .iata{font-family:var(--hx);font-size:12px;color:var(--accent);letter-spacing:.14em}
 .tablebox td.code{font-family:var(--hx);font-size:13px;color:#ffe2b8;letter-spacing:.06em}
 .tablebox .op{font-weight:500;letter-spacing:.03em;color:#d9f3ff}
-.tablebox .acn{font-family:var(--hx);font-size:12.5px;color:#c8f2ff;letter-spacing:.04em}
+.tablebox .acn{font-family:var(--hx);font-size:12.5px;color:#c8f2ff;letter-spacing:.04em}.acn{min-width:8em}.acest,.acobs{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-top:2px}.acest{color:#ffcf8a}.acobs{color:#3df2b6}
 .tablebox .t{font-family:var(--hx);font-size:13.5px;color:#eaf8ff;font-weight:400}
 .tablebox .km{font-family:var(--hx);font-size:11.5px;color:#6f93a6}
 .filters .cfchip{align-self:end;padding:9px 12px;border:1px solid rgba(255,207,138,.6);border-radius:3px;background:rgba(255,207,138,.1);color:#ffcf8a;font-family:var(--hb);font-size:13px;cursor:pointer;white-space:nowrap}
@@ -252,7 +252,7 @@ td.code{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums
 .sbbar a:hover,.sbbar a:focus-visible{background:rgba(61,242,182,.2);color:#fff}
 .sbl{display:block;margin-bottom:2px}.sbl a{font-family:var(--hx);font-size:11.5px;color:#3df2b6;text-decoration:none;margin-right:6px}.sbl a:hover{text-decoration:underline}
 .selbar .sbl{display:inline;margin-left:8px}
-.tablebox .adsb{font-family:var(--hx);font-size:11px;color:#3df2b6;letter-spacing:.03em}
+.tablebox .adsb{font-family:var(--hx);font-size:11px;color:#3df2b6;letter-spacing:.03em;white-space:normal;display:inline-block;max-width:15em}
 .tablebox .esc{display:block;font-family:var(--hx);font-size:11px;color:#ffcf8a;letter-spacing:.03em}.tablebox .esc.p{color:#c9a46a;font-style:italic}
 .tablebox .src{font-family:var(--hx);font-size:11.5px;color:#6f93a6;letter-spacing:.02em}
 .tablebox .pill{border-radius:2px;font-family:var(--hd);font-size:8.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:4px 8px;background:transparent;border:1px solid currentColor;box-shadow:0 0 10px -3px currentColor,inset 0 0 8px -5px currentColor}
@@ -338,7 +338,7 @@ button.tocta{border:0;cursor:pointer}
 .entry-opt span{color:var(--muted);font-size:14px}
 .entry-opt:hover,.entry-opt:focus-visible{border-color:#f0954a;background:rgba(240,149,74,.08);outline:none}
 .entry-note{margin:0;color:var(--muted);font-size:12px}
-body.pax .tablebox th:nth-child(6),body.pax .tablebox td:nth-child(6){display:none}/* passageiros: a fonte não traz a aeronave */
+/* passageiros: a fonte não traz a aeronave */
 </style>
 
 <div id="entry" class="entry" hidden role="dialog" aria-modal="true" aria-labelledby="entry-h">
@@ -470,9 +470,11 @@ const REGNAMES={OM:"Oriente Médio",SAS:"Subcontinente Indiano",SEA:"Sudeste Asi
 let REGS={OM:ME,SEA,LEA,SAM,CAM};
 let HUBS=Object.values(REGS).flat();
 const $=id=>document.getElementById(id);
-const hubOf=r=>r[0]==="Chegada"?r[2]:r[0]==="Saída"?r[1]:(HUBS.includes(r[1])?r[1]:r[2]);
+// conjunto dos hubs, refeito só quando a lista HUBS é trocada (consulta rápida com dezenas de milhares de rotas)
+const isHub=c=>{if(isHub.src!==HUBS){isHub.src=HUBS;isHub.s=new Set(HUBS);}return isHub.s.has(c);};
+const hubOf=r=>r[0]==="Chegada"?r[2]:r[0]==="Saída"?r[1]:(isHub(r[1])?r[1]:r[2]);
 // rota de malha entre dois hubs pertence aos dois (ex.: LUX–IST conta para Luxemburgo e para Istambul)
-const hubsOf=r=>r[0]==="Malha"&&HUBS.includes(r[1])&&HUBS.includes(r[2])?[r[1],r[2]]:[hubOf(r)];
+const hubsOf=r=>r[0]==="Malha"&&isHub(r[1])&&isHub(r[2])?[r[1],r[2]]:[hubOf(r)];
 const touches=(r,h)=>hubsOf(r).includes(h);
 const partnerOf=r=>{const h=$("hub").value,k=h&&touches(r,h)?h:hubOf(r);return k===r[1]?r[2]:r[1];};
 const regOf=h=>{for(const k in REGS)if(REGS[k].includes(h))return k;return "";};
@@ -487,11 +489,12 @@ function fillHubs(){const g=$("reg").value,cur=$("hub").value;const list=hubs.fi
   $("hub").value=list.includes(cur)?cur:"";}
 fillHubs();
 const FAM=[[/757-200F/,"Boeing 757-200F"],[/747-8F/,"Boeing 747-8F"],[/777-300ER/,"Boeing 777-300ER"],[/777/,"Boeing 777F"],[/747/,"Boeing 747-400F"],[/767-200F/,"Boeing 767-200F"],[/767/,"Boeing 767-300F"],[/737-800/,"Boeing 737-800BCF"],[/737-4/,"Boeing 737-400F"],[/737-3/,"Boeing 737-300F"],[/A330-200F/,"Airbus A330-200F"],[/A330/,"Airbus A330 (não confirmado)"],[/A321/,"Airbus A321"],[/MD-11/,"McDonnell Douglas MD-11F"],[/Shorts/,"Shorts 360F"],[/757-300/,"Boeing 757-300"],[/Il-76/,"Ilyushin Il-76"]];
-const fam=r=>{const t=r[5].split(" / ")[0];for(const [re,n] of FAM)if(re.test(t))return n;return "Não informado";};
+const fam=r=>{const t=r[5].split(" / ")[0];if(PAX)return t?t.replace(/ \([A-Z0-9]{3,4}\)$/,""):"Não informado";for(const [re,n] of FAM)if(re.test(t))return n;return "Não informado";};
+function fillFams(){const cur=$("ac").value,fams=[...new Set(R.map(fam))].sort((a,b)=>a==="Não informado"?1:b==="Não informado"?-1:$t(a).localeCompare($t(b),LOC));
+  $("ac").innerHTML='<option value="">'+$t("Todas")+'</option>'+fams.map(f=>`<option value="${esc(f)}">${esc($t(f))}</option>`).join("");$("ac").value=cur;}
 function buildOptions(){
   hubs=[...new Set(R.flatMap(hubsOf))].sort((a,b)=>HUBS.indexOf(a)-HUBS.indexOf(b));fillHubs();
-  const fams=[...new Set(R.map(fam))].sort((a,b)=>a==="Não informado"?1:b==="Não informado"?-1:$t(a).localeCompare($t(b),LOC));
-  $("ac").innerHTML='<option value="">'+$t("Todas")+'</option>'+fams.map(f=>`<option value="${esc(f)}">${esc($t(f))}</option>`).join("");
+  fillFams();
   const ops=[...new Set(R.map(r=>r[4]))].sort((a,b)=>a.localeCompare(b,LOC));
   $("op").innerHTML='<option value="">'+$t("Todos")+'</option>'+ops.map(o=>`<option>${o}</option>`).join("");$("op")._sig="";
 }
@@ -518,8 +521,14 @@ const SPEC={
 "Ilyushin Il-76":{L:100,H:12,il:1,pay:"48 t",w:"Ilyushin_Il-76"},
 "Shorts 360F":{L:62,H:10,sh:1,pay:"3,6 t",w:"Short_360"}
 };
+// Pax: perfil pelo modelo (mesmo desenho dos cargueiros, proporções de cada família)
+const SPEC_PAX=[[/A380/,{L:140,H:15,e:[6,3.8],n:2,hump:96}],[/747/,{L:130,H:14,e:[5,3.4],n:2,hump:30}],[/777/,{L:132,H:13,e:[7.5,4.6],n:1}],
+  [/787/,{L:116,H:12,e:[6.8,4.2],n:1}],[/A350/,{L:128,H:13,e:[7,4.4],n:1}],[/A340/,{L:128,H:12,e:[4.6,3],n:2}],[/A330/,{L:118,H:12,e:[6,3.8],n:1}],
+  [/767/,{L:108,H:11,e:[5.6,3.6],n:1}],[/757/,{L:104,H:9,e:[5,3.2],n:1}],[/A321/,{L:96,H:9,e:[4.6,2.9],n:1}],[/737 MAX 10|737-900|737 MAX 9/,{L:92,H:9,e:[4.6,2.9],n:1}],
+  [/737|717|MD-/,{L:86,H:9,e:[4.4,2.8],n:1}],[/A320|C919/,{L:88,H:9,e:[4.6,2.9],n:1}],[/A31|A220/,{L:80,H:9,e:[4.4,2.8],n:1}],
+  [/E19|E195|E190/,{L:78,H:8,e:[4,2.5],n:1}],[/E17|ERJ|CRJ|Superjet|ARJ/,{L:70,H:8,e:[3.6,2.3],n:1}],[/ATR|Dash/,{L:62,H:9,e:[3,2],n:1}]];
 function sil(f){
-  const S=SPEC[f]; if(!S) return '<svg viewBox="0 0 160 56" aria-hidden="true"></svg>';
+  let S=SPEC[f];if(!S&&PAX){const m=SPEC_PAX.find(([re])=>re.test(f));if(m)S=m[1];}if(!S) return '<svg viewBox="0 0 160 56" aria-hidden="true"></svg>';
   const x0=(160-S.L)/2, x1=x0+S.L, cy=30, H=S.H, top=cy-H/2, bot=cy+H/2;
   let g='';
   if(S.sh){ // Shorts 360: caixa, asa alta, hélices
@@ -1119,8 +1128,44 @@ function verDias(v){if(!v)return 0;const lim=new Date(Date.now()-30*864e5).toISO
 function verPar(o,d){const pre=o+"|"+d+"|",dias=new Set();let u="";for(const k in VER.vistas)if(k.startsWith(pre)){const v=VER.vistas[k];for(const x of v.d||[v.u])dias.add(x);if(v.u>u)u=v.u;}
   const lim=new Date(Date.now()-30*864e5).toISOString().slice(0,10);return{n:[...dias].filter(x=>x>=lim).length,u};}
 const verTxt=(n,u)=>$t(n===1?"✓ ADS-B: vista em 1 dia dos últimos 30 · última {d}":"✓ ADS-B: vista em {n} dias dos últimos 30 · última {d}",{n,d:fmtDia(u)});
-async function verFetch(){try{const r=await fetch(`verificacao.json?t=${Math.floor(Date.now()/3600000)}`,{cache:"no-store"});if(!r.ok)return;const j=await r.json();
-  if(j&&j.vistas){VER.vistas=j.vistas;VER.novas=j.novas||{};VER.t=j.atualizado_em;render();}}catch(e){}}
+async function verFetch(){try{const r=await fetch(`${PAX?"verificacao-pax.json":"verificacao.json"}?t=${Math.floor(Date.now()/3600000)}`,{cache:"no-store"});if(!r.ok)return;const j=await r.json();
+  if(j&&j.vistas){VER.vistas=j.vistas;VER.novas=j.novas||{};VER.frota=j.frota||{};VER.t=j.atualizado_em;if(PAX)paxAeronaves();render();}}catch(e){}}
+// Pax: modelos vistos no ADS-B em cada rota viram a coluna Aeronave (mais frequente primeiro); a malha vale nos dois sentidos
+const PAX_TN={A19N:"Airbus A319neo",A20N:"Airbus A320neo",A21N:"Airbus A321neo",A318:"Airbus A318",A319:"Airbus A319",A320:"Airbus A320",A321:"Airbus A321",
+  BCS1:"Airbus A220-100",BCS3:"Airbus A220-300",A332:"Airbus A330-200",A333:"Airbus A330-300",A338:"Airbus A330-800neo",A339:"Airbus A330-900neo",
+  A343:"Airbus A340-300",A346:"Airbus A340-600",A359:"Airbus A350-900",A35K:"Airbus A350-1000",A388:"Airbus A380",B736:"Boeing 737-600",
+  B737:"Boeing 737-700",B738:"Boeing 737-800",B739:"Boeing 737-900",B37M:"Boeing 737 MAX 7",B38M:"Boeing 737 MAX 8",B39M:"Boeing 737 MAX 9",
+  B3XM:"Boeing 737 MAX 10",B752:"Boeing 757-200",B753:"Boeing 757-300",B763:"Boeing 767-300",B764:"Boeing 767-400",B772:"Boeing 777-200",
+  B77L:"Boeing 777-200LR",B773:"Boeing 777-300",B77W:"Boeing 777-300ER",B788:"Boeing 787-8",B789:"Boeing 787-9",B78X:"Boeing 787-10",
+  B744:"Boeing 747-400",B748:"Boeing 747-8",E170:"Embraer E170",E175:"Embraer E175",E75L:"Embraer E175",E75S:"Embraer E175",E190:"Embraer E190",
+  E195:"Embraer E195",E290:"Embraer E190-E2",E295:"Embraer E195-E2",E145:"Embraer ERJ-145",CRJ2:"Bombardier CRJ200",CRJ7:"Bombardier CRJ700",
+  CRJ9:"Bombardier CRJ900",CRJX:"Bombardier CRJ1000",AT72:"ATR 72",AT75:"ATR 72-500",AT76:"ATR 72-600",DH8D:"De Havilland Dash 8-400",
+  SU95:"Sukhoi Superjet 100",C919:"COMAC C919",AJ27:"COMAC ARJ21",B712:"Boeing 717",MD88:"McDonnell Douglas MD-88",MD90:"McDonnell Douglas MD-90"};
+// alcance prático de cada modelo (km), para a aeronave provável não cair num avião que não chega ao destino
+const PAX_RANGE={A19N:6800,A20N:6300,A21N:7400,A318:5700,A319:6900,A320:6100,A321:5900,BCS1:5700,BCS3:6200,A332:13400,A333:11700,A338:15000,A339:13300,
+  A343:13500,A346:14400,A359:15000,A35K:16100,A388:15000,B736:5900,B737:6300,B738:5400,B739:5000,B37M:6500,B38M:6500,B39M:6500,B3XM:6100,B752:7200,
+  B753:6300,B763:11000,B764:10400,B772:12000,B77L:15800,B773:11000,B77W:13600,B788:13600,B789:14000,B78X:11900,B744:13400,B748:14300,E170:3900,
+  E175:3700,E75L:3700,E75S:3700,E190:4500,E195:4000,E290:5300,E295:4800,E145:2800,CRJ2:3000,CRJ7:2600,CRJ9:2900,CRJX:2700,AT72:1500,AT75:1500,
+  AT76:1500,DH8D:2000,SU95:3000,C919:4000,AJ27:2200,B712:2600,MD88:3700,MD90:3800};
+let PAXOPC={},PAXFROTA={};/* companhia -> códigos ICAO e frota atual na Wikipedia (pax.json) */
+const paxNome=c=>(PAX_TN[c]||c)+" ("+c+")";
+function paxAeronaves(){const V=VER.vistas,F=VER.frota||{};for(const k of Object.keys(V)){const [o,d,op]=k.split("|"),kr=d+"|"+o+"|"+op;if(!V[kr])V[kr]=V[k];}
+  // 1) vista no ADS-B nesta rota (até 2 modelos, o mais frequente primeiro)
+  const obs=new Map();
+  for(const r of R){r[10]=0;r[5]="";const v=V[r[1]+"|"+r[2]+"|"+r[4]];if(!v||!v.t)continue;const top=Object.entries(v.t).sort((a,b)=>b[1]-a[1]);
+    r[5]=top.slice(0,2).map(([c])=>paxNome(c)).join(" / ");const k=pathKm(r[1],r[2]);if(k){if(!obs.has(r[4]))obs.set(r[4],[]);obs.get(r[4]).push([k,top[0][0]]);}}
+  // 2) provável: o modelo da companhia numa rota vista de distância parecida; senão o mais comum da frota que tem alcance
+  //    (em rota curta, prefere os de corredor único quando a companhia tem)
+  for(const r of R){if(r[5])continue;const k=pathKm(r[1],r[2]);if(!k)continue;const ok=t=>(PAX_RANGE[t]||0)*.9>=k;
+    let best="",bd=Math.log(1.5);for(const [kk,t] of obs.get(r[4])||[]){const dd=Math.abs(Math.log(kk/k));if(dd<bd&&ok(t)){bd=dd;best=t;}}
+    if(!best){const fr={};for(const c of (PAXOPC[r[4]]||"").split(" "))for(const [t,x] of Object.entries(F[c]||{}))fr[t]=(fr[t]||0)+x[0];
+      let cand=Object.entries(fr).filter(([t])=>ok(t));const curto=cand.filter(([t])=>PAX_RANGE[t]<=Math.max(3*k,7500));if(curto.length)cand=curto;
+      cand.sort((a,b)=>b[1]-a[1]);if(cand.length)best=cand[0][0];}
+    // 3) companhia ainda não vista no ar: frota atual listada na Wikipedia, o modelo de alcance mais ajustado à rota
+    if(!best){let cand=(PAXFROTA[r[4]]||"").split(" ").filter(t=>t&&ok(t));const curto=cand.filter(t=>PAX_RANGE[t]<=Math.max(3*k,7500));if(curto.length)cand=curto;
+      cand.sort((a,b)=>Math.abs(Math.log(PAX_RANGE[a]/(k*1.3)))-Math.abs(Math.log(PAX_RANGE[b]/(k*1.3))));if(cand.length)best=cand[0];}
+    if(best){r[5]=paxNome(best);r[10]=1;}}
+  fillFams();}
 async function cyFetch(){try{const r=await fetch(`ciclones.json?t=${Math.floor(Date.now()/300000)}`,{cache:"no-store"});if(!r.ok)return;const j=await r.json();
     CY.list=(j.ciclones||[]).filter(c=>c&&c.atual&&isFinite(c.atual.lat)&&isFinite(c.atual.lon));CY.t=Date.parse(j.atualizado_em)||Date.now();}catch(e){return;}
   if(CY.sel&&!CY.list.some(c=>c.id===CY.sel))CY.sel=null;CY.hover=null;cyThreat();cyPanel();}
@@ -1484,7 +1529,7 @@ function gHoverRoute(mx,my,all){let rt=null,bd=6;
   for(const r of MAP.routes){if(!r.gvis||(!all&&MAP.sel&&r.id!==MAP.sel&&!r.inFan)||hideR(r))continue;const b=r.gbb;if(mx<b[0]-6||mx>b[2]+6||my<b[1]-6||my>b[3]+6)continue;const s=r.sc;
     for(let i=1;i<=r.gN;i++){if(!s[i*3+2]||!s[i*3-1])continue;const d=segDist(mx,my,s[i*3-3],s[i*3-2],s[i*3],s[i*3+1]);if(d<bd){bd=d;rt=r;}}}
   return rt;}
-function setMode(m){if(!MAP)return;MAP.mode=m;MAP.host.classList.toggle("globe",m==="globe");
+function setMode(m){if(!MAP)return;MAP.mode=m;if(m!=="globe"&&MAP.routes&&!MAP.batch)mapBatch();MAP.host.classList.toggle("globe",m==="globe");
   document.querySelectorAll("#viewtog button[data-m]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.m===m)));
   const sel=d3.select(MAP.cv);if(m==="globe"){sel.on(".zoom",null);$("hudzoom").textContent=`ZOOM ${G.k.toFixed(1)}×`;}else{sel.call(MAP.zoom);$("hudzoom").textContent=`ZOOM ${MAP.t.k.toFixed(1)}×`;}
   MAP.hover=null;MAP.hoverPt=null;untip();MAP.resize();MAP.dirty=true;MAP.labDirty=true;kick();
@@ -1504,18 +1549,21 @@ function buildRoute(p){
   let bb=[1e9,1e9,-1e9,-1e9];flat.forEach(q=>{bb[0]=Math.min(bb[0],q[0]);bb[1]=Math.min(bb[1],q[1]);bb[2]=Math.max(bb[2],q[0]);bb[3]=Math.max(bb[3],q[1]);});
   return Object.assign(p,{p2d:new Path2D(MAP.gp(p.geo)),segs,flat,cum,len:L,bb,off:((p.o.charCodeAt(0)*7+p.d.charCodeAt(1)*13)%100)/100});
 }
+// o globo usa a própria geometria (gRoute); a do mapa plano só é montada quando ele estiver em uso
+const mapGeo=p=>MAP.mode==="globe"?p:buildRoute(p);
+function mapBatch(){MAP.batch={};for(const r of MAP.routes){if(!r.p2d)buildRoute(r);(MAP.batch[r.dir]=MAP.batch[r.dir]||new Path2D()).addPath(r.p2d);}}
 function drawMap(list){
   if(!MAP)return;
-  const pairs=new Map(),aps=new Map();
-  list.forEach(r=>{const o=r[1],d=r[2];if(o==="---"||d==="---"||!C[o]||!C[d])return;
+  const pairs=new Map(),aps=new Map(),hubOn=new Set();
+  list.forEach(r=>{for(const h of hubsOf(r))hubOn.add(h);const o=r[1],d=r[2];if(o==="---"||d==="---"||!C[o]||!C[d])return;
     const key=r[0]+"|"+o+"|"+d;let p=pairs.get(key);if(!p){p={id:key,dir:r[0],o,d,n:0,ops:new Set(),fl:[],oa:new Map(),st:null,sq:""};pairs.set(key,p);}
     if(!p.st&&r[8]){p.st=r[8];p.sq=r[9];}else if(!p.sq&&r[9])p.sq=r[9];
     p.n++;p.ops.add(r[4]);{const s=p.oa.get(r[4])||new Set();if(r[5])s.add(r[5]);p.oa.set(r[4],s);}if(r[3]&&r[3]!=="—")p.fl.push(r[3]);
     [o,d].forEach(c=>aps.set(c,(aps.get(c)||0)+1));});
   const ord={Malha:0,"Chegada":1,"Saída":2};
-  MAP.routes=[...pairs.values()].map(p=>buildRoute(Object.assign(p,{sw:.9+Math.min(2.6,(p.n-1)*.55),geo:{type:"LineString",coordinates:[p.o,...(p.st||[]),p.d].map(c=>[C[c][1],C[c][0]])}}))).sort((a,b)=>ord[a.dir]-ord[b.dir]);
-  MAP.pts=[...aps.entries()].map(([c,n])=>{const hub=HUBS.includes(c)&&list.some(r=>touches(r,c));const xy=MAP.proj([C[c][1],C[c][0]]);return{c,n,hub,x:xy[0],y:xy[1],r:hub?2+Math.min(1.8,Math.sqrt(n)*.22):1.4,off:(c.charCodeAt(0)%26)/26};}).sort((a,b)=>a.hub-b.hub);
-  MAP.batch={};for(const r of MAP.routes){(MAP.batch[r.dir]=MAP.batch[r.dir]||new Path2D()).addPath(r.p2d);}
+  MAP.routes=[...pairs.values()].map(p=>mapGeo(Object.assign(p,{sw:.9+Math.min(2.6,(p.n-1)*.55),geo:{type:"LineString",coordinates:[p.o,...(p.st||[]),p.d].map(c=>[C[c][1],C[c][0]])}}))).sort((a,b)=>ord[a.dir]-ord[b.dir]);
+  MAP.pts=[...aps.entries()].map(([c,n])=>{const hub=hubOn.has(c);const xy=MAP.proj([C[c][1],C[c][0]]);return{c,n,hub,x:xy[0],y:xy[1],r:hub?2+Math.min(1.8,Math.sqrt(n)*.22):1.4,off:(c.charCodeAt(0)%26)/26};}).sort((a,b)=>a.hub-b.hub);
+  MAP.batch=null;if(MAP.mode!=="globe")mapBatch();
   MAP.hover=null;MAP.hoverPt=null;
   $("hudstats").textContent=$t("{r} rotas · {h} hubs · {a} aeroportos",{r:MAP.routes.length,h:MAP.pts.filter(d=>d.hub).length,a:MAP.pts.length});
   MAP.dirty=true;MAP.labDirty=true;
@@ -1600,7 +1648,10 @@ function render(){
   const ts=list.map(T).filter(x=>x!=null);
   const avg=ts.length?Math.round(ts.reduce((a,b)=>a+b,0)/ts.length):null;
   const shown=$("rotas").hidden?[]:view.slice(0,LIMIT);
-  $("rows").innerHTML=shown.map(r=>`<tr data-k="${esc(keyOf(r))}" class="${SEL===keyOf(r)?"sel":""}${r[1]==="---"||r[2]==="---"?" nosel":""}" title="${r[1]==="---"||r[2]==="---"?"":$t("Clique para ver esta rota no mapa")}"><td>${pill(r[0])}</td><td class="route">${cell(r[1])}</td><td class="route">${cell(r[2])}</td><td class="code">${esc(r[3])}</td><td class="op">${esc(r[4])}</td><td><span class="acc">${PHOTO[fam(r)]?`<span class="thumb tph" style="background-image:var(--ph-${PHKEY[fam(r)]})" role="img" aria-label="${esc(fam(r))}"></span>`:`<span class="thumb tsil">${SILC[fam(r)]||(SILC[fam(r)]=sil(fam(r)))}</span>`}<span class="acn">${esc(r[5])}</span></span></td><td class="time">${tcell(r)}</td><td class="src">${sbHtml(r,"sbl")}${esc(r[6])}${r[7]?`<br><span class="km">${$t("visto em {d}",{d:fmtDia(r[7])})}</span>`:""}${(v=>v?`<br><span class="adsb" title="${esc($t("indicativo {c}",{c:v.cs})+(v.via&&v.via.length?" · via "+v.via.join(" · "):""))}">${verTxt(verDias(v),v.u)}</span>`:"")(VER.vistas[r[1]+"|"+r[2]+"|"+r[4]])}</td></tr>`).join("");
+  const rowHtml=r=>`<tr data-k="${esc(keyOf(r))}" class="${SEL===keyOf(r)?"sel":""}${r[1]==="---"||r[2]==="---"?" nosel":""}" title="${r[1]==="---"||r[2]==="---"?"":$t("Clique para ver esta rota no mapa")}"><td>${pill(r[0])}</td><td class="route">${cell(r[1])}</td><td class="route">${cell(r[2])}</td><td class="code">${esc(r[3])}</td><td class="op">${esc(r[4])}</td><td><span class="acc">${PAX&&!r[5]?"":PHOTO[fam(r)]?`<span class="thumb tph" style="background-image:var(--ph-${PHKEY[fam(r)]})" role="img" aria-label="${esc(fam(r))}"></span>`:`<span class="thumb tsil">${SILC[fam(r)]||(SILC[fam(r)]=sil(fam(r)))}</span>`}<span class="acn">${esc(r[5]||(PAX?"—":""))}${PAX&&r[5]?(r[10]?`<span class="acest" title="${esc($t("Aeronave provável: estimada pela frota da companhia vista no ADS-B e pela distância da rota"))}">${$t("provável")}</span>`:`<span class="acobs" title="${esc($t("Aeronave vista no ADS-B nesta rota"))}">✓ ADS-B</span>`):""}</span></span></td><td class="time">${tcell(r)}</td><td class="src">${sbHtml(r,"sbl")}${esc(r[6])}${r[7]?`<br><span class="km" style="white-space:nowrap">${$t("visto em {d}",{d:fmtDia(r[7])})}</span>`:""}${(v=>v?`<br><span class="adsb" title="${esc($t("indicativo {c}",{c:v.cs})+(v.via&&v.via.length?" · via "+v.via.join(" · "):""))}">${verTxt(verDias(v),v.u)}</span>`:"")(VER.vistas[r[1]+"|"+r[2]+"|"+r[4]])}</td></tr>`;
+  // as primeiras linhas aparecem na hora; o resto entra em blocos sem travar a página (uma nova filtragem cancela os blocos pendentes)
+  clearTimeout(render.ck);$("rows").innerHTML=shown.slice(0,120).map(rowHtml).join("");
+  {let i=120;const tb=$("rows"),step=()=>{tb.insertAdjacentHTML("beforeend",shown.slice(i,i+250).map(rowHtml).join(""));i+=250;if(i<shown.length)render.ck=setTimeout(step,16);};if(i<shown.length)render.ck=setTimeout(step,16);}
   $("more").hidden=view.length<=LIMIT;$("more").textContent=$t("Mostrar mais {a} (de {b} restantes)",{a:Math.min(250,view.length-LIMIT),b:view.length-LIMIT});
   $("empty").textContent=$t(LOADED?"Nenhuma rota com esses filtros. Limpe a busca ou escolha outro hub ou destino.":LOADMSG);
   $("empty").hidden=LOADED&&view.length>0;
@@ -1647,7 +1698,9 @@ const cityAps=v=>isCity(v)&&CIDADES[v.slice(1)]?CIDADES[v.slice(1)][1]:null;
 const apSet=v=>{const c=cityAps(v);return c?new Set(c):new Set(v?[v]:[]);};
 const apMain=v=>{const c=cityAps(v);return c?(c.find(x=>C[x])||c[0]):v;};/* aeroporto principal da cidade (para centralizar o globo) */
 try{SAVEDF=JSON.parse(localStorage.getItem("f")||"null");}catch(e){}
-const fmtDia=iso=>{if(!iso)return"";const d=new Date(iso.length===10?iso+"T12:00:00":iso);return isNaN(d)?iso:d.toLocaleDateString(LOC,{day:"2-digit",month:"2-digit",year:"numeric"});};
+// formatador de data reaproveitado (criar um por linha da tabela era lento) e datas já formatadas guardadas
+const fmtDia=iso=>{if(!iso)return"";const F=fmtDia;if(F.loc!==LOC){F.loc=LOC;F.f=new Intl.DateTimeFormat(LOC,{day:"2-digit",month:"2-digit",year:"numeric"});F.c=new Map();}
+  let v=F.c.get(iso);if(v===undefined){const d=new Date(iso.length===10?iso+"T12:00:00":iso);v=isNaN(d)?iso:F.f.format(d);F.c.set(iso,v);}return v;};
 function applyData(docs){
   if(docs.clima){WX.snap=docs.clima;if(!WX.live){wxFromSnap();wxBar();}}
   if(docs.aovivo){LV.snap=docs.aovivo;if(LV.on&&!LV.live&&!LV.busy){lvFromSnap();lvHud();}}
@@ -1662,7 +1715,7 @@ function applyData(docs){
     if((x.o!=="---"&&!C[x.o])||(x.d!=="---"&&!C[x.d]))return;
     const st=Array.isArray(x.esc)?x.esc.filter(c=>C[c]):null;
     rows.push([x.s,x.o,x.d,String(x.v||"—"),String(x.op||""),String(x.ac||""),String(x.f||""),String(x.visto||""),st&&st.length?st:null,x.escq||""]);}));
-  R=rows;LOADED=true;buildOptions();if(!PAX)verFetch();/* a verificação noturna por ADS-B cobre só os cargueiros */
+  R=rows;LOADED=true;buildOptions();verFetch();/* a verificação noturna por ADS-B cobre só os cargueiros */
   if(WX.on)wxRefresh();// busca de novo o METAR, agora incluindo os destinos das rotas
   if(WX.on&&!NO.t&&!NO.busy)setTimeout(()=>noFetch(),0);
   if(SAVEDF){const s=SAVEDF;SAVEDF=null;$("reg").value=s.g||"";fillHubs();$("q").value=s.q||"";$("hub").value=s.h||"";$("dir").value=s.d||"";$("op").value=s.o||"";$("sort").value=s.s||"";$("ac").value=s.a||"";if(s.t){$("dst").innerHTML+=`<option value="${esc(s.t)}"></option>`;$("dst").value=s.t;$("dst")._sig="";}if(s.p){$("org").innerHTML+=`<option value="${esc(s.p)}"></option>`;$("org").value=s.p;$("org")._sig="";}}
@@ -1676,7 +1729,7 @@ function showLoadMsg(msg){LOADMSG=msg;LOADED=false;render();}
     try{const r=await fetch("pax.json",{cache:"no-cache"});if(!r.ok)throw 0;const P=await r.json();
       const docs={clima:__D.clima,aovivo:null,meta:{hubs:P.hubs},aeroportos:{lista:Object.assign({},__D.aeroportos.lista,P.aeroportos)},
         "rotas-PAX":{rotas:P.rotas.map(([o,d,i,f])=>({s:"Malha",o,d,op:P.ops[i],ac:"",v:"—",f:f==="s"?"Wikipedia · sazonal":f?"Wikipedia · fretamento":"Wikipedia",visto:P.data}))}};
-      Object.assign(ICAO,P.icao||{});ICAO2=null;LIMIT=LIM0;applyData(docs);}
+      Object.assign(ICAO,P.icao||{});ICAO2=null;P.ops.forEach((o,i)=>{const c=(P.opc||[])[i];PAXOPC[o]=c||"";PAXFROTA[o]=(P.frota||[])[i]||"";if(c&&!SB_OPX[o])SB_OPX[o]=c.split(" ")[0];});/* companhia no SimBrief pelo código ICAO */LIMIT=LIM0;applyData(docs);}
     catch(e){showLoadMsg("Não foi possível carregar as rotas de passageiros agora. Recarregue a página para tentar de novo.");}
     return;}
   db.collection("base").onSnapshot(qs=>{
@@ -1703,7 +1756,7 @@ $("cards").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.t
 // códigos de aeronave da lista do próprio SimBrief (simbrief.com/api/inputs.list.json); A330F não tem código próprio
 const SB_AC=[[/747-8/,"B48F"],[/747-200/,"B742"],[/747/,"B74F"],[/777-300/,"B77W"],[/777/,"B77F"],[/767-200/,"B762"],[/767/,"B76F"],[/757/,"B75F"],[/MD-?11/,"MD1F"],[/A300/,"A30F"],
   [/A330-300/,"A333"],[/A330/,"A332"],[/737-800/,"B738"],[/737-400/,"B734"],[/737-300/,"B733"],[/737-700/,"B737"],[/A321/,"A321"],[/ATR ?72/,"AT76"],[/ATR ?42/,"AT46"],[/DC-?10/,"DC10"]];
-function sbType(ac){const t=String(ac||"").split(/ \/ | · /)[0];for(const [re,c] of SB_AC)if(re.test(t))return c;return "";}
+function sbType(ac){const t=String(ac||"").split(/ \/ | · /)[0],tc=t.match(/\(([A-Z0-9]{3,4})\)$/);if(tc)return tc[1];for(const [re,c] of SB_AC)if(re.test(t))return c;return "";}
 // companhias da base que não estão no mapa ao vivo (código ICAO só quando conhecido com segurança)
 const SB_OPX={"Royal Air Maroc Cargo":"RAM","Flynas Cargo":"KNE","Air Canada Cargo":"ACA","Icelandair Cargo":"ICE","ASL Airlines France":"FPO","ASL Airlines Ireland":"ABR",
   "Swiftair":"SWT","Virgin Atlantic":"VIR","Cygnus Air":"RGN","Turkmenistan Airlines":"TUA","CAL Cargo":"ICL","Suparna Airlines Cargo":"YZR","Suparna Airlines":"YZR",
