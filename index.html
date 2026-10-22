@@ -333,6 +333,16 @@ button.tocta{border:0;cursor:pointer}
 .entry[hidden]{display:none}
 .entry-box{max-width:760px;width:100%;display:grid;gap:18px;text-align:center}
 .entry-box h1{font-family:var(--display);font-weight:400;font-size:clamp(28px,5vw,44px);margin:0}
+/* trilhas de voos ao lado do título: rotas que se desenham em sequência, com o "avião" na ponta e os aeroportos piscando */
+.entry-title{display:flex;align-items:center;justify-content:center;gap:clamp(8px,2vw,18px)}
+.entry-trilhas{width:clamp(78px,13vw,128px);height:auto;flex:none;overflow:visible}
+.entry-trilhas .tr path{fill:none;stroke:var(--c);stroke-width:1.6;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;opacity:0;filter:drop-shadow(0 0 3px var(--c));animation:trilha 4.4s var(--d) ease-in-out infinite}
+.entry-trilhas .ap{fill:var(--c);opacity:0;animation:trilhaAp 4.4s var(--d) ease-in-out infinite}
+.entry-trilhas .av{fill:#fff;opacity:0;offset-rotate:0deg;filter:drop-shadow(0 0 4px var(--c));animation:trilhaAv 4.4s var(--d) ease-in-out infinite}
+@keyframes trilha{0%{stroke-dashoffset:100;opacity:0}6%{opacity:.95}46%{stroke-dashoffset:0;opacity:.95}74%{opacity:.55}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes trilhaAp{0%,4%{opacity:0}10%{opacity:1}74%{opacity:.6}100%{opacity:0}}
+@keyframes trilhaAv{0%{offset-distance:0%;opacity:0}6%{opacity:1}46%{offset-distance:100%;opacity:1}54%{opacity:0}100%{offset-distance:100%;opacity:0}}
+@media (prefers-reduced-motion:reduce){.entry-trilhas .tr path,.entry-trilhas .ap{animation:none;opacity:.7;stroke-dashoffset:0}.entry-trilhas .av{display:none}}
 .entry-sub{margin:0;color:#7fe9ff;font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:12px}
 .entry-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
 .entry-opt{display:grid;gap:8px;padding:26px 22px;border:1px solid rgba(127,233,255,.3);border-radius:10px;background:rgba(3,9,20,.75);color:#e4ecf8;text-decoration:none;text-align:left;transition:border-color .15s,background .15s}
@@ -345,7 +355,7 @@ button.tocta{border:0;cursor:pointer}
 
 <div id="entry" class="entry" hidden role="dialog" aria-modal="true" aria-labelledby="entry-h">
   <div class="entry-box">
-    <h1 id="entry-h">Cargo Connections</h1>
+    <div class="entry-title"><h1 id="entry-h">Sky Connections</h1><svg class="entry-trilhas" viewBox="0 0 160 64" aria-hidden="true" focusable="false"><g class="tr" style="--c:#3df2b6;--d:0.0s"><path d="M8 54 Q52 2 106 40" pathLength="100"/><circle class="ap" cx="8" cy="54" r="2.2"/><circle class="ap" cx="106" cy="40" r="2.2"/><circle class="av" r="2.4" style="offset-path:path('M8 54 Q52 2 106 40')"/></g><g class="tr" style="--c:#b48cff;--d:1.1s"><path d="M22 60 Q84 16 154 28" pathLength="100"/><circle class="ap" cx="22" cy="60" r="2.2"/><circle class="ap" cx="154" cy="28" r="2.2"/><circle class="av" r="2.4" style="offset-path:path('M22 60 Q84 16 154 28')"/></g><g class="tr" style="--c:#56b8ff;--d:2.2s"><path d="M6 26 Q74 -6 142 56" pathLength="100"/><circle class="ap" cx="6" cy="26" r="2.2"/><circle class="ap" cx="142" cy="56" r="2.2"/><circle class="av" r="2.4" style="offset-path:path('M6 26 Q74 -6 142 56')"/></g><g class="tr" style="--c:#7fe9ff;--d:3.3s"><path d="M44 62 Q104 34 152 8" pathLength="100"/><circle class="ap" cx="44" cy="62" r="2.2"/><circle class="ap" cx="152" cy="8" r="2.2"/><circle class="av" r="2.4" style="offset-path:path('M44 62 Q104 34 152 8')"/></g></svg></div>
     <p class="entry-sub" data-t>Escolha a versão do site</p>
     <div class="entry-opts">
       <a class="entry-opt" href="?carga" data-m="carga"><b data-t>Carga</b><span data-t>Rotas de aviões cargueiros dos principais hubs do mundo</span></a>
