@@ -130,6 +130,8 @@ function compare(fl, path, day, V, N) {
     const k = `${r.o}|${r.d}|${r.op}`, via = path.slice(i + 1, j);
     const v = V[k] || (V[k] = { n: 0 });
     v.u = day; v.n++; v.cs = fl; v.via = via;
+    // histórico: dias (UTC) em que a rota foi vista voando, guardados por 60 dias
+    v.d = v.d || []; if (!v.d.includes(day)) v.d.push(day);
     for (let x = i; x < j; x++) covered.add(path[x] + "|" + path[x + 1]);
   }
   for (let x = 0; x + 1 < path.length; x++) {
@@ -163,6 +165,8 @@ for (let s = 0; s < FOTOS; s++) { // três fotos com 10 min de intervalo pegam m
 }
 // novidades: some quando a rota entra na base ou fica 45 dias sem aparecer
 const lim = new Date(Date.now() - 45 * 864e5).toISOString().slice(0, 10);
+const lim60 = new Date(Date.now() - 60 * 864e5).toISOString().slice(0, 10);
+for (const v of Object.values(V)) { v.d = (v.d || [v.u]).filter(x => x >= lim60).sort(); }
 for (const k of Object.keys(N)) {
   const [op, a, b] = k.split("|");
   if (N[k].u < lim || (base.get(opKey(op)) || []).some(r => r.o === a && r.d === b)) delete N[k];
