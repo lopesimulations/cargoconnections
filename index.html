@@ -32,7 +32,7 @@ body{color:var(--fg);font-family:var(--body);font-size:14px;line-height:1.5;
     linear-gradient(180deg,#071434 0%,#040a1c 55%,#02050f 100%);
   background-size:280px 260px,280px 260px,280px 260px,280px 260px,280px 260px,auto,auto,auto;
   background-attachment:fixed}
-.wrap{max-width:1180px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:20px}
+.wrap{max-width:min(1680px,94vw);margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:20px}
 header{display:grid;gap:6px}
 .topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px 16px}
 .langs{display:flex;gap:2px;padding:2px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
@@ -268,9 +268,9 @@ td.code{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums
 
 /* ---------- abertura: globo em tela cheia ---------- */
 html{scroll-behavior:smooth}
-.hero{position:relative;background:#030a16;--side:max(24px,calc(50% - 620px))}
+.hero{position:relative;background:#030a16;--side:max(24px,3vw,calc(50% - 1280px))}/* margens proporcionais: em telas largas o texto e os controles vão para perto das bordas */
 .hero #map{border-radius:0;border:0;border-bottom:1px solid var(--m-line);box-shadow:none}
-.hero #map canvas,.hero #map.globe canvas{aspect-ratio:auto;height:clamp(640px,100svh,940px)}
+.hero #map canvas,.hero #map.globe canvas{aspect-ratio:auto;height:max(640px,100svh)}
 .hero #map .hud.tl{display:none}
 .hero::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(90deg,rgba(3,10,22,.88) 0,rgba(3,10,22,.55) 26%,rgba(3,10,22,0) 44%,rgba(3,10,22,0) 74%,rgba(3,10,22,.6) 100%)}
 .hero-top{position:absolute;z-index:3;left:var(--side);top:26px;max-width:430px;display:grid;gap:10px;pointer-events:none;text-shadow:0 2px 12px rgba(2,6,16,.9)}
@@ -300,6 +300,37 @@ button.tocta{border:0;cursor:pointer}
 .hero #viewtog{bottom:calc(var(--barh,96px) + 10px)}
 .hero .hud.bc{bottom:calc(var(--barh,96px) + 44px)}
 .hero .cypanel{left:auto;right:var(--side);top:64px;z-index:4}
+/* telas largas: botões Rotas/Clima embaixo do globo, que fica a 56% da largura (gC no script) */
+@media (min-aspect-ratio:3/2) and (min-width:761px){#viewtog{left:56%}}
+/* monitores grandes (1080p para cima): texto, números, legenda e filtros crescem junto com a tela */
+@media (min-width:1700px){
+  .hero-top{max-width:clamp(430px,27vw,640px);gap:12px}
+  .hero-top h1{font-size:clamp(22px,1.35vw,32px)}
+  .hero-top .eyebrow{font-size:clamp(12px,.68vw,16px)}
+  .hero-top .tagline{font-size:clamp(34px,2.1vw,54px)}
+  .hero-top .lede{font-size:clamp(14px,.8vw,19px);max-width:none}
+  .hero .stats{grid-template-columns:repeat(2,minmax(0,clamp(150px,9.5vw,230px)));gap:12px}
+  .hero .stats>span:nth-child(-n+4){font-size:clamp(11px,.62vw,15px);padding:12px 16px}
+  .hero .stats>span:nth-child(-n+4) b{font-size:clamp(22px,1.45vw,36px)}
+  .hero .stats>span:nth-child(n+5){font-size:clamp(12px,.66vw,16px)}
+  .legend-hud{font-size:clamp(11px,.62vw,15px);gap:7px}
+  .legend-hud i{width:22px}
+  .modes a,.langs button{font-size:clamp(11px,.62vw,14px);padding:4px 11px}
+  #viewtog button{font-size:clamp(11px,.62vw,14px);padding:8px 18px}
+  .hero-bar .filters{gap:14px}
+  .hero-bar .filters .f,.hero-bar .filters .f.grow{max-width:none}
+  .hero-bar .filters label{font-size:clamp(9.5px,.55vw,13px)}
+  .hero-bar .filters input,.hero-bar .filters select{font-size:clamp(14px,.75vw,18px);padding-block:clamp(8px,.5vw,12px)}
+  .hero-bar .tocta,.hero-bar .more,.hero-bar button{font-size:clamp(11px,.62vw,15px)}
+  .entry .entry-box{max-width:clamp(760px,46vw,1180px);gap:22px}
+  .entry .entry-box h1{font-size:clamp(44px,3vw,72px)}
+  .entry .entry-trilhas{width:clamp(128px,8.5vw,200px)}
+  .entry .entry-sub{font-size:clamp(12px,.7vw,16px)}
+  .entry .entry-opt{padding:clamp(26px,1.7vw,40px) clamp(22px,1.5vw,36px)}
+  .entry .entry-opt b{font-size:clamp(24px,1.6vw,38px)}
+  .entry .entry-opt span{font-size:clamp(14px,.85vw,19px)}
+  .entry .entry-note{font-size:clamp(12px,.7vw,15px)}
+}
 @media (max-width:760px){
   .hero{display:flex;flex-direction:column}.hero::before{display:none}
   .hero-side{position:static;order:-3;padding:14px 16px 0;justify-items:stretch}
@@ -693,7 +724,7 @@ function segDist(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,l=dx*dx+dy*dy;let t=
 // sem nenhum filtro ativo as linhas são só decoração do globo: passam a responder ao mouse com hub, país, aeroporto ou outro filtro escolhido
 const rtLive=()=>!!(SEL||MAP.apOn||["reg","op","ac","q"].some(id=>$(id).value));
 function hoverAt(e){
-  const GL=MAP.mode==="globe";const [mx,my]=local(e),[lx,ly]=toL(mx,my),ll=GL?(Math.hypot(mx-MAP.w/2,my-MAP.h/2)<gR()?G.proj.invert([mx,my]):null):MAP.proj.invert([lx,ly]);
+  const GL=MAP.mode==="globe";const [mx,my]=local(e),[lx,ly]=toL(mx,my),ll=GL?(Math.hypot(mx-gC()[0],my-gC()[1])<gR()?G.proj.invert([mx,my]):null):MAP.proj.invert([lx,ly]);
   if(GL){const hc=ll&&!isNaN(ll[0])?G.countries.find(q=>ll[0]>=q.bb[0][0]-1&&ll[0]<=q.bb[1][0]+1&&ll[1]>=q.bb[0][1]-1&&ll[1]<=q.bb[1][1]+1&&d3.geoContains(q.f,ll))||G.countries.find(q=>q.bb[0][0]>q.bb[1][0]&&d3.geoContains(q.f,ll))||null:null;if(hc!==G.hc){G.hc=hc;kick();}}
   if(ll&&!isNaN(ll[0])){const la=ll[1],lo=ll[0];$("hudpos").textContent=`${GL&&G.hc?G.hc.nm.toUpperCase()+" · ":""}LAT ${Math.abs(la).toFixed(2)}°${la>=0?"N":"S"} · LON ${Math.abs(lo).toFixed(2)}°${lo>=0?"E":"W"}`;}
   const a=pickPt(e);let rt=null;const lva=GL?lvPick(mx,my):null;if(lva!==LV.hover){LV.hover=lva;kick();}
@@ -1399,7 +1430,11 @@ function initGlobe(){
   G.coastLo=topojson.mesh(WORLDLO,WORLDLO.objects.countries,(a,b)=>a===b);G.bordersLo=topojson.mesh(WORLDLO,WORLDLO.objects.countries,(a,b)=>a!==b);
   txFallback();
 }
-function gR(){return Math.min(MAP.w,MAP.h)*(MAP.w>MAP.h*1.25?.39:.44)*G.k;}/* tela larga: globo um pouco menor, deixa espaço para o texto da abertura */
+// tela larga (ex.: 1920×1080): o globo vai para a direita do centro e cresce, ocupando o espaço livre sem cobrir o texto
+// da esquerda; um pouco acima do meio, por causa da barra de filtros embaixo. Telas mais quadradas seguem centralizadas.
+const gLarga=()=>MAP.w>MAP.h*1.5;
+function gR(){return Math.min(MAP.w,MAP.h)*(gLarga()?.43:MAP.w>MAP.h*1.25?.39:.44)*G.k;}
+function gC(){return gLarga()?[MAP.w*.56,MAP.h*.46]:[MAP.w/2,MAP.h/2];}
 // pontos ao longo da rota, trecho a trecho (com escalas): [[lon,lat], fração do trecho, ângulo do trecho]
 function pathPts(r,N){const L=[r.o,...(r.st||[]),r.d].map(c=>[C[c][1],C[c][0]]),A=[];let tot=0;
   for(let j=1;j<L.length;j++){const a=d3.geoDistance(L[j-1],L[j]);A.push(a);tot+=a;}
@@ -1443,14 +1478,15 @@ function globeFrame(ts){
   G.rot=false;
   if(!G.anim&&!RM&&!G.drag&&!G.pinch&&ts-G.lastInt>75000&&!MAP.sel&&!MAP.hover&&!MAP.hoverPt){G.L-=dt*.0035;G.rot=true;}/* rotação real: de oeste para leste (continentes andam para a direita) */
   if(G.L>180)G.L-=360;if(G.L<-180)G.L+=360;
-  const R=gR(),cx=w/2,cy=h/2,l0=G.L*D2R,p0=G.P*D2R,cl=Math.cos(l0),sl=Math.sin(l0),cp=Math.cos(p0),sp=Math.sin(p0);
+  const R=gR(),[cx,cy]=gC(),l0=G.L*D2R,p0=G.P*D2R,cl=Math.cos(l0),sl=Math.sin(l0),cp=Math.cos(p0),sp=Math.sin(p0);
   const mov=!!(G.anim||G.drag||G.pinch||G.rot);
   // camadas fixas (globo, rotas, aeroportos, rótulos) só são redesenhadas quando a vista ou o filtro mudam
   const W=MAP.cv.width,H=MAP.cv.height;gFan();
   if(!G.bc||G.bc.width!==W||G.bc.height!==H){G.bc=document.createElement("canvas");G.bc.width=W;G.bc.height=H;G.lc=document.createElement("canvas");G.lc.width=W;G.lc.height=H;G.bkey="";}
   // em movimento, telas de alta densidade (escala >100%, 4K) desenham as camadas fixas em densidade 1:
   // milhares de rotas semitransparentes custam proporcionalmente à área em pixels reais; parado, volta à nitidez total
-  const lo=mov&&dpr>1.05,ld=lo?1:dpr,LW2=Math.max(1,Math.round(w)),LH2=Math.max(1,Math.round(h));
+  // telas grandes (1080p para cima) em densidade 1: em movimento, a 75% da resolução
+  const big=w*h>1.3e6,lo=mov&&(dpr>1.05||big),ld=lo?(big?.75:1):dpr,LW2=Math.max(1,Math.round(w*ld)),LH2=Math.max(1,Math.round(h*ld));
   if(lo&&(!G.bcLo||G.bcLo.width!==LW2||G.bcLo.height!==LH2)){G.bcLo=document.createElement("canvas");G.bcLo.width=LW2;G.bcLo.height=LH2;G.lcLo=document.createElement("canvas");G.lcLo.width=LW2;G.lcLo.height=LH2;}
   const BC=lo?G.bcLo:G.bc,LC=lo?G.lcLo:G.lc;
   const key=[G.L.toFixed(3),G.P.toFixed(3),G.k.toFixed(4),W,H,mov?1:0,G.hc?G.hc.nm:"",G.cf||"",MAP.sel||"",MAP.hover?MAP.hover.id:"",MAP.hoverPt?MAP.hoverPt.c:"",$("hub").value,$("dst").value,$("org").value,FOC_AP,G.fanP||0,MAP.noR?1:0,MAP.apOn?1:0,TX.ok?TX.mul:0,WX.on?1:0,WX.gt,WX.t,G.rv||0].join("|");
